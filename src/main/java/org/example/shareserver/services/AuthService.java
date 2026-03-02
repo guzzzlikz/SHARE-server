@@ -19,6 +19,8 @@ public class AuthService {
     private UserRepository userRepository;
     @Autowired
     private HashComponent hashComponent;
+    @Autowired
+    private JWTService jwtService;
 
     public ResponseEntity<?> register(User user) {
         StringBuilder errorMsg = new StringBuilder();
@@ -51,7 +53,8 @@ public class AuthService {
             return ResponseEntity.badRequest().body(errorMsg.toString());
         }
         userRepository.save(user);
-        return ResponseEntity.status(200).body(new ApiResponse("User registered successfully", user));
+        String token = jwtService.generateToken(user.getEmail());
+        return ResponseEntity.status(200).body(new ApiResponse(token, "User registered successfully", user));
     }
 
     public ResponseEntity<?> login(String email, String password) {
@@ -76,7 +79,9 @@ public class AuthService {
             log.info("AuthService has been called but password is incorrect");
             return ResponseEntity.badRequest().body("Incorrect password");
         }
+
+        String token = jwtService.generateToken(mongoUser.getEmail());
         mongoUser.setPassword(null);
-        return ResponseEntity.status(200).body(new ApiResponse("User logged in successfully", mongoUser));
+        return ResponseEntity.status(200).body(new ApiResponse(token, "User logged in successfully", mongoUser));
     }
 }
