@@ -22,4 +22,15 @@ public class HashComponent {
         }
         return hexString.toString();
     }
+
+    public byte[] hashToByte(String input) {
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        byte[] hash = digest.digest(input.getBytes());
+        return hash;
+    }
 }
