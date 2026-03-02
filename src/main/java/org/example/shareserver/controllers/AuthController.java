@@ -16,7 +16,7 @@ public class AuthController {
         return authService.register(user);
     }
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam("username") String email, @RequestParam("password") String password) {
+    public ResponseEntity<?> login(@RequestParam("login") String email, @RequestParam("password") String password) {
         return authService.login(email, password);
     }
 }

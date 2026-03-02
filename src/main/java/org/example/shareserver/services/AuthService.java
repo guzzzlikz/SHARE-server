@@ -51,7 +51,6 @@ public class AuthService {
             return ResponseEntity.badRequest().body(errorMsg.toString());
         }
         userRepository.save(user);
-        user.setPassword(null);
         return ResponseEntity.status(200).body(new ApiResponse("User registered successfully", user));
     }
 
@@ -59,18 +58,22 @@ public class AuthService {
         StringBuilder errorMsg = new StringBuilder();
         if (email == null || email.isEmpty()) {
             errorMsg.append("Email is required\n");
+            log.info("AuthService has been called but email is empty");
         }
         if (password == null || password.isEmpty()) {
             errorMsg.append("Password is required\n");
+            log.info("AuthService has been called but password is empty");
         }
         if (!errorMsg.toString().isEmpty()) {
             return ResponseEntity.badRequest().body(errorMsg.toString());
         }
         User mongoUser = userRepository.findByEmail(email);
         if (mongoUser == null) {
+            log.info("AuthService has been called but there is no user");
             return ResponseEntity.badRequest().body("User not found");
         }
-        if (!mongoUser.getPassword().equals(hashComponent.hash(mongoUser.getPassword()))) {
+        if (!mongoUser.getPassword().equals(hashComponent.hash(password))) {
+            log.info("AuthService has been called but password is incorrect");
             return ResponseEntity.badRequest().body("Incorrect password");
         }
         mongoUser.setPassword(null);
