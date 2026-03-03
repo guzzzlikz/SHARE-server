@@ -12,6 +12,7 @@ public class ShareServerApplication {
     public static void main(String[] args) {
         Dotenv env = Dotenv.load();
         System.setProperty("spring.mongodb.uri", Objects.requireNonNull(env.get("MONGO.URI")));
+        System.setProperty("jwt.secret", Objects.requireNonNull(env.get("JWT.SECRET")));
         SpringApplication.run(ShareServerApplication.class, args);
     }
 
