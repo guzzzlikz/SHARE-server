@@ -89,7 +89,7 @@ public class ProductService {
                 mongoProduct.setTitle(params.getTitle());
             }
         }
-        if (params.getDescription() != null && !params.getDescription().isEmpty()) {
+        if (params.getDescription() != null) {
             if (params.getDescription().isEmpty()) {
                 log.info("ProductService has been called but description is empty");
                 errorMsg.append("Product description is required\n");
