@@ -13,10 +13,13 @@ public class ProductController {
     @Getter
     @Setter
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class ParamsDTO {
         private String title;
         private String description;
         private double price;
+        private double longitude;
+        private double latitude;
     }
     @Autowired
     private ProductService productService;
@@ -31,18 +34,8 @@ public class ProductController {
         return productService.removeProduct(productId);
     }
     @PutMapping("/change")
-    public ResponseEntity<?> changeParams(@RequestParam(required = false) double price,
-                                          @RequestParam(required = false) String title,
-                                          @RequestParam(required = false) String description,
+    public ResponseEntity<?> changeParams(@RequestBody ParamsDTO params,
                                           @RequestParam String productId) {
-        ParamsDTO params = new ParamsDTO();
-        params.price = price;
-        if (title != null) {
-            params.title = title;
-        }
-        if (description != null) {
-            params.description = description;
-        }
         return productService.changeParams(params, productId);
     }
 }

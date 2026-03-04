@@ -44,6 +44,10 @@ public class ProductService {
             log.info("ProductService has been called but price is invalid");
             errorMsg.append("Product price is invalid\n");
         }
+        if (product.getLongitude() == 0 || product.getLatitude() == 0) {
+            log.info("ProductService has been called but coordinates are invalid");
+            errorMsg.append("Product coordinates are invalid");
+        }
         if (!errorMsg.toString().isEmpty()) {
             return ResponseEntity.status(400).body(errorMsg.toString());
         }
@@ -77,24 +81,33 @@ public class ProductService {
             log.info("ProductService has been called but product not found");
             return ResponseEntity.status(404).body("Product not found");
         }
-        if (params.getTitle().isEmpty()) {
-            log.info("ProductService has been called but title is empty");
-            errorMsg.append("Product title is required\n");
-        }
-        if (params.getTitle() != null && !params.getTitle().isEmpty()) {
-            mongoProduct.setTitle(params.getTitle());
-        }
-        if (params.getDescription().isEmpty()) {
-            log.info("ProductService has been called but description is empty");
-            errorMsg.append("Product description is required\n");
+        if (params.getTitle() != null) {
+            if (params.getTitle().isEmpty()) {
+                log.info("ProductService has been called but title is empty");
+                errorMsg.append("Product title is required\n");
+            } else {
+                mongoProduct.setTitle(params.getTitle());
+            }
         }
         if (params.getDescription() != null && !params.getDescription().isEmpty()) {
-            mongoProduct.setDescription(params.getDescription());
+            if (params.getDescription().isEmpty()) {
+                log.info("ProductService has been called but description is empty");
+                errorMsg.append("Product description is required\n");
+            } else {
+                mongoProduct.setDescription(params.getDescription());
+            }
         }
         if (params.getPrice() < 0) {
             errorMsg.append("Price is invalid\n");
         } else {
             params.setPrice(mongoProduct.getPrice());
+        }
+        if (params.getLatitude() == 0 || params.getLongitude() == 0) {
+            log.info("ProductService has been called but coordinates are invalid");
+            errorMsg.append("Product coordinates are invalid\n");
+        } else {
+            mongoProduct.setLatitude(params.getLatitude());
+            mongoProduct.setLongitude(params.getLongitude());
         }
         if (!errorMsg.toString().isEmpty()) {
             return ResponseEntity.status(400).body(errorMsg.toString());

@@ -20,4 +20,6 @@ public class Product {
     private String description;
     private String imageUrl;
     private double price;
+    private double longitude;
+    private double latitude;
 }
