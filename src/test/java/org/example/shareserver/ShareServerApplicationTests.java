@@ -68,6 +68,8 @@ class ProductTests {
                 .title("testProduct")
                 .description("testProductDesc")
                 .price(123)
+                .latitude(45.9204)
+                .longitude(65.2049)
                 .build();
         mockMvc.perform(post("/api/products/add")
                 .contentType(MediaType.APPLICATION_JSON)
