@@ -1,6 +1,8 @@
 package org.example.shareserver;
 
+import org.example.shareserver.models.Product;
 import org.example.shareserver.models.User;
+import org.example.shareserver.services.JWTService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class ShareServerApplicationTests {
+class AuthTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,4 +48,32 @@ class ShareServerApplicationTests {
                 .andExpect(status().isOk());
     }
 
+}
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+class ProductTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private JWTService jwtService;
+
+    @Test
+    void addSuccess() throws Exception {
+        Product product = Product.builder()
+                .id("1")
+                .title("testProduct")
+                .description("testProductDesc")
+                .price(123)
+                .build();
+        mockMvc.perform(post("/api/products/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " +
+                                jwtService.generateToken("example228@gmail.com"))
+                .content(objectMapper.writeValueAsString(product)))
+                .andExpect(status().isOk());
+    }
 }
