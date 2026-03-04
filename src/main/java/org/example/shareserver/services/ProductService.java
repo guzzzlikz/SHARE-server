@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.controllers.ProductController;
 import org.example.shareserver.models.Product;
 import org.example.shareserver.repositories.ProductRepository;
+import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public class ProductService {
     private JWTService jwtService;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private UserRepository userRepository;
     public ResponseEntity<?> addProduct(Product product, String authToken) {
         StringBuilder errorMsg = new StringBuilder();
         if (authToken == null || authToken.isEmpty() || !authToken.startsWith("Bearer ")) {
@@ -22,7 +25,8 @@ public class ProductService {
             return ResponseEntity.status(403).body("Token not found");
         }
         String token = authToken.replace("Bearer ", "");
-        String ownerId = jwtService.getDataFromToken(token);
+        String ownerMail = jwtService.getDataFromToken(token);
+        String ownerId = userRepository.findByEmail(ownerMail).getId();
         product.setOwnerId(ownerId);
         if (product.getId() == null || product.getId().isEmpty()) {
             log.info("ProductService has been called but id is empty");
