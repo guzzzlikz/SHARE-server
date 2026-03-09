@@ -1,5 +1,6 @@
 package org.example.shareserver;
 
+import org.example.shareserver.models.LoginDTO;
 import org.example.shareserver.models.Product;
 import org.example.shareserver.models.User;
 import org.example.shareserver.services.JWTService;
@@ -42,9 +43,13 @@ class AuthTests {
     }
     @Test
     void loginSuccess() throws Exception {
+        LoginDTO loginDTO = LoginDTO.builder()
+                .email("example228@gmail.com")
+                .password("pososi")
+                .build();
         mockMvc.perform(get("/api/auth/login")
-                .param("login", "example228@gmail.com")
-                .param("password", "pososi"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDTO)))
                 .andExpect(status().isOk());
     }
 
