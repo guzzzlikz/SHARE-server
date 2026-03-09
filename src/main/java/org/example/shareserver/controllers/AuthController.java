@@ -1,5 +1,6 @@
 package org.example.shareserver.controllers;
 
+import org.example.shareserver.models.LoginDTO;
 import org.example.shareserver.models.User;
 import org.example.shareserver.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ public class AuthController {
         return authService.register(user);
     }
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam("login") String email, @RequestParam("password") String password) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
+        String email = loginDTO.getEmail();
+        String password = loginDTO.getPassword();
         return authService.login(email, password);
     }
 }
