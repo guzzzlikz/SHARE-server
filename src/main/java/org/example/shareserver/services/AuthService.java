@@ -6,11 +6,14 @@ import org.example.shareserver.models.ApiResponse;
 import org.example.shareserver.models.User;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@EnableCaching
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
@@ -19,8 +22,14 @@ public class AuthService {
     @Autowired
     private JWTService jwtService;
 
+    @Cacheable("register")
     public ResponseEntity<?> register(User user) {
         StringBuilder errorMsg = new StringBuilder();
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            errorMsg.append("User is already registered\n");
+            log.info("AuthService has been called but user is already registered");
+            return ResponseEntity.badRequest().body(errorMsg.toString());
+        }
         if (user.getId() == null || user.getId().isEmpty()) {
             errorMsg.append("User id is required\n");
             log.info("AuthService has been called but id is empty");
@@ -54,6 +63,7 @@ public class AuthService {
         return ResponseEntity.status(200).body(new ApiResponse(token, "User registered successfully", user));
     }
 
+    @Cacheable("login")
     public ResponseEntity<?> login(String email, String password) {
         StringBuilder errorMsg = new StringBuilder();
         if (email == null || email.isEmpty()) {
