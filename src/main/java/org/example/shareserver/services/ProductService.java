@@ -1,7 +1,7 @@
 package org.example.shareserver.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.shareserver.controllers.ProductController;
+import org.example.shareserver.models.ParamsDTO;
 import org.example.shareserver.models.Product;
 import org.example.shareserver.repositories.ProductRepository;
 import org.example.shareserver.repositories.UserRepository;
@@ -79,7 +79,7 @@ public class ProductService {
     }
 
     @Cacheable("change")
-    public ResponseEntity<?> changeParams(ProductController.ParamsDTO params, String productId) {
+    public ResponseEntity<?> changeParams(ParamsDTO params, String productId) {
         StringBuilder errorMsg = new StringBuilder();
         Product mongoProduct = productRepository.findById(productId).orElse(null);
         if (mongoProduct == null) {
