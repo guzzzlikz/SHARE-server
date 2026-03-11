@@ -6,11 +6,14 @@ import org.example.shareserver.models.Product;
 import org.example.shareserver.repositories.ProductRepository;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@EnableCaching
 public class ProductService {
     @Autowired
     private JWTService jwtService;
@@ -56,6 +59,7 @@ public class ProductService {
         return ResponseEntity.status(200).body("Product added");
     }
 
+    @Cacheable("remove")
     public ResponseEntity<?> removeProduct(String productId) {
         StringBuilder errorMsg = new StringBuilder();
         if (productId == null || productId.isEmpty()) {
@@ -74,6 +78,7 @@ public class ProductService {
         return ResponseEntity.status(200).body("Product removed");
     }
 
+    @Cacheable("change")
     public ResponseEntity<?> changeParams(ProductController.ParamsDTO params, String productId) {
         StringBuilder errorMsg = new StringBuilder();
         Product mongoProduct = productRepository.findById(productId).orElse(null);
