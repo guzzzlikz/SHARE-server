@@ -14,6 +14,7 @@ public class ShareServerApplication {
         System.setProperty("spring.mongodb.uri", Objects.requireNonNull(env.get("MONGO.URI")));
         System.setProperty("jwt.secret", Objects.requireNonNull(env.get("JWT.SECRET")));
         System.setProperty("ai.key", Objects.requireNonNull(env.get("AI.KEY")));
+        System.setProperty("gcs.key", Objects.requireNonNull(env.get("GCS.KEY")));
         SpringApplication.run(ShareServerApplication.class, args);
     }
 
