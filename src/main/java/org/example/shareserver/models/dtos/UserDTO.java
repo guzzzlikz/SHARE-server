@@ -1,9 +1,10 @@
-package org.example.shareserver.models.entities;
+package org.example.shareserver.models.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.shareserver.models.entities.Item;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,8 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection="users")
-public class User {
+public class UserDTO {
     @Id
     private String id;
     private String firstName;

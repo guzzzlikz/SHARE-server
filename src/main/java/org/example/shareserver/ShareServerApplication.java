@@ -3,10 +3,12 @@ package org.example.shareserver;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Objects;
 
 @SpringBootApplication
+@EnableScheduling
 public class ShareServerApplication {
     public static void main(String[] args) {
         Dotenv env = Dotenv.load();

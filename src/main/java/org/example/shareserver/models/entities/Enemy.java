@@ -7,25 +7,22 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import java.time.Instant;
 
+@Document(collection = "enemies")
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-@Document(collection="users")
-public class User {
+@NoArgsConstructor
+@Builder
+public class Enemy {
     @Id
     private String id;
-    private String firstName;
-    private String lastName;
-    private String email;
+    private String name;
     private String pathToPhoto;
-    private String password;
-
-    private int hp = 100;
-    private int damage = 15;
-    private int coins = 200;
-    private int gems = 10;
-    private List<Item> items;
+    private String city;
+    private double longitude;
+    private double latitude;
+    private int hp;
+    private int damage;
+    private Instant killedAt;
 }
