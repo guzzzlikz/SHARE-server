@@ -141,7 +141,6 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-storage</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
