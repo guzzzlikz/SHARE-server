@@ -50,7 +50,8 @@ public class PhotoStorageService {
                 .setContentType(file.getContentType())
                 .build();
         storage.create(blobInfo, file.getBytes());
-
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setPathToPhoto(blobName);
         return blobName;
     }
 

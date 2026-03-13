@@ -133,7 +133,11 @@ public class AiService {
             return ResponseEntity.status(401).build();
         }
         log.info("Blob succeeded!");
+<<<<<<< HEAD
         return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob, BucketType.USER));
+=======
+        return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob));
+>>>>>>> 1174974296e222fc769d0338646f558525ca78c3
     }
 }
 class MultipartInputStreamFileResource extends InputStreamResource {
