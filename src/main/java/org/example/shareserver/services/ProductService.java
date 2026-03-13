@@ -22,7 +22,6 @@ public class ProductService {
     @Autowired
     private UserRepository userRepository;
     public ResponseEntity<?> addProduct(Product product, String authToken) {
-        StringBuilder errorMsg = new StringBuilder();
         if (authToken == null || authToken.isEmpty() || !authToken.startsWith("Bearer ")) {
             log.warn("Possible XSS attack!");
             return ResponseEntity.status(403).body("Token not found");
@@ -31,28 +30,10 @@ public class ProductService {
         String ownerMail = jwtService.getDataFromToken(token);
         String ownerId = userRepository.findByEmail(ownerMail).getId();
         product.setOwnerId(ownerId);
-        if (product.getId() == null || product.getId().isEmpty()) {
-            log.info("ProductService has been called but id is empty");
-            errorMsg.append("Product id is required\n");
-        }
-        if (product.getTitle() == null || product.getTitle().isEmpty()) {
-            log.info("ProductService has been called but title is empty");
-            errorMsg.append("Product title is required\n");
-        }
-        if (product.getDescription() == null || product.getDescription().isEmpty()) {
-            log.info("ProductService has been called but description is empty");
-            errorMsg.append("Product description is required\n");
-        }
-        if (product.getPrice() < 0) {
-            log.info("ProductService has been called but price is invalid");
-            errorMsg.append("Product price is invalid\n");
-        }
-        if (product.getLongitude() == 0 || product.getLatitude() == 0) {
-            log.info("ProductService has been called but coordinates are invalid");
-            errorMsg.append("Product coordinates are invalid");
-        }
-        if (!errorMsg.toString().isEmpty()) {
-            return ResponseEntity.status(400).body(errorMsg.toString());
+
+        String errorMsg = checkAuth(product);
+        if(!errorMsg.isEmpty()){
+          return ResponseEntity.badRequest().body(errorMsg);
         }
         //TODO image url
         productRepository.save(product);
@@ -119,5 +100,30 @@ public class ProductService {
         }
         productRepository.save(mongoProduct);
         return ResponseEntity.status(200).body("Product updated");
+    }
+
+    private String checkAuth(Product product) {
+        StringBuilder errorMsg = new StringBuilder();
+        if (product.getId() == null || product.getId().isEmpty()) {
+            log.info("ProductService has been called but id is empty");
+            errorMsg.append("Product id is required\n");
+        }
+        if (product.getTitle() == null || product.getTitle().isEmpty()) {
+            log.info("ProductService has been called but title is empty");
+            errorMsg.append("Product title is required\n");
+        }
+        if (product.getDescription() == null || product.getDescription().isEmpty()) {
+            log.info("ProductService has been called but description is empty");
+            errorMsg.append("Product description is required\n");
+        }
+        if (product.getPrice() < 0) {
+            log.info("ProductService has been called but price is invalid");
+            errorMsg.append("Product price is invalid\n");
+        }
+        if (product.getLongitude() == 0 || product.getLatitude() == 0) {
+            log.info("ProductService has been called but coordinates are invalid");
+            errorMsg.append("Product coordinates are invalid");
+        }
+        return errorMsg.toString();
     }
 }
