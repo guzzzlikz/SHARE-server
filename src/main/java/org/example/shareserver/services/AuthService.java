@@ -59,7 +59,7 @@ public class AuthService {
             return ResponseEntity.badRequest().body(errorMsg.toString());
         }
         userRepository.save(user);
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getId());
         return ResponseEntity.status(200).body(new ApiResponse(token, "User registered successfully", user));
     }
 
@@ -87,7 +87,7 @@ public class AuthService {
             return ResponseEntity.badRequest().body("Incorrect password");
         }
 
-        String token = jwtService.generateToken(mongoUser.getEmail());
+        String token = jwtService.generateToken(mongoUser.getId());
         mongoUser.setPassword(null);
         return ResponseEntity.status(200).body(new ApiResponse(token, "User logged in successfully", mongoUser));
     }

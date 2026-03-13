@@ -2,6 +2,8 @@ package org.example.shareserver.services;
 
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import lombok.extern.slf4j.Slf4j;
+import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class PhotoStorageService {
     @Autowired
@@ -30,12 +33,14 @@ public class PhotoStorageService {
     private String itemBucketName;
 
     public String uploadUserProfilePhoto(MultipartFile file, String userId) throws IOException {
+        log.info("Upload user profile method has been called");
         String blobName = "photos/user/" + userId + "/" + file.getOriginalFilename();
         BlobInfo blobInfo = BlobInfo.newBuilder(userBucketName, blobName)
                 .setContentType(file.getContentType())
                 .build();
         storage.create(blobInfo, file.getBytes());
-
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setPathToPhoto(blobName);
         return blobName;
     }
 

@@ -6,10 +6,8 @@ import lombok.NoArgsConstructor;
 import org.example.shareserver.services.AiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/ai")
@@ -27,5 +25,10 @@ public class AiController {
     @PostMapping("/ask")
     public ResponseEntity<?> ask(@RequestBody AiDTO dto) {
         return aiService.ask(dto.message);
+    }
+    @PostMapping("/generate-profile")
+    public ResponseEntity<?> generateProfile(@RequestPart("file") MultipartFile file,
+                                            @RequestHeader("Authorization") String token) {
+        return aiService.generateProfile(file, token);
     }
 }
