@@ -31,4 +31,11 @@ public class AiController {
                                             @RequestHeader("Authorization") String token) {
         return aiService.generateProfile(file, token);
     }
+    @PostMapping("/generate-battle-photo")
+    public ResponseEntity<?> generateBattlePhoto(@RequestPart("file") MultipartFile file,
+                                                 @RequestHeader("Authorization") String token,
+                                                 @RequestParam String battleId,
+                                                 @RequestParam String mobId) {
+        return aiService.generateBattlePhoto(file, token, battleId, mobId);
+    }
 }

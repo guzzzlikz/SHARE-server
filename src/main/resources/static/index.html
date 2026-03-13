@@ -30,7 +30,7 @@
                 const data = await res.json();
                 const token = data.token
                 console.log(token)
-                const response = await fetch('http://localhost:8080/api/ai/generate-profile', {
+                const response = await fetch('http://localhost:8080/api/ai/generate-battle-photo?battleId=111&mobId=121', {
                     headers: {
                         "Authorization": "Bearer " + token
                     },

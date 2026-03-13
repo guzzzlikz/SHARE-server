@@ -2,6 +2,7 @@ package org.example.shareserver.controllers;
 
 import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.UserRepository;
+import org.example.shareserver.services.JWTService;
 import org.example.shareserver.services.PhotoStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,13 @@ public class PhotoController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/{userId}/uploadUser")
-    public ResponseEntity<?> uploadUserProfilePhoto(@PathVariable String userId,
-                                                    @RequestParam("file") MultipartFile file) {
+    @Autowired
+    private JWTService jwtService;
+
+    @PostMapping("uploadUser")
+    public ResponseEntity<?> uploadUserProfilePhoto(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
         try {
+            String userId = jwtService.getDataFromToken(token);
             String gcsPath = photoStorageService.uploadUserProfilePhoto(file, userId);
             Optional<User> user = userRepository.findById(userId);
             if (user.isEmpty()) {
@@ -36,17 +40,4 @@ public class PhotoController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Upload failed: " + e.getMessage());
         }
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserPhoto(@PathVariable String userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        String url = photoStorageService.getSignedUrl(user.get().getPathToPhoto());
-
-        return ResponseEntity.ok(url);
-    }
-}
+    }}

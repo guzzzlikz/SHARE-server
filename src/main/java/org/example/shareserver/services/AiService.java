@@ -2,6 +2,7 @@ package org.example.shareserver.services;
 
 import io.jsonwebtoken.security.Jwks;
 import lombok.extern.slf4j.Slf4j;
+import org.example.shareserver.models.dtos.BattleDTO;
 import org.example.shareserver.models.dtos.OpenAIImageDTO;
 import org.example.shareserver.models.entities.Product;
 import org.example.shareserver.repositories.ProductRepository;
@@ -126,6 +127,71 @@ public class AiService {
         String blob = null;
         try {
             blob = photoStorageService.uploadUserProfilePhoto(generatedFile, id);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (blob == null) {
+            return ResponseEntity.status(401).build();
+        }
+        log.info("Blob succeeded!");
+        return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob));
+    }
+
+    public ResponseEntity<?> generateBattlePhoto(MultipartFile file, String token, String battleId, String mobId) {
+        if (file == null || file.isEmpty()) {
+            log.info("AI service has been called but file is empty");
+            return ResponseEntity.status(400).body("File cannot be empty");
+        }
+        token = token.replace("Bearer ", "");
+        // Convert file to Base64
+        String base64File = null;
+        try {
+            base64File = Base64.getEncoder().encodeToString(file.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+
+        form.add("model", "gpt-image-1");
+        form.add("prompt", "convert this landscape into anime fantasy location");
+        form.add("size", "1024x1024");
+
+        try {
+            form.add("image", new MultipartInputStreamFileResource(
+                    file.getInputStream(),
+                    file.getOriginalFilename()
+            ));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        log.info("Image added - sending request");
+
+        OpenAIImageDTO response = webClient.post()
+                .uri("/images/edits")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .bodyValue(form)
+                .retrieve()
+                .bodyToMono(OpenAIImageDTO.class)
+                .block();
+        log.info("Request succeeded!");
+        String base64 = response.getData().get(0).getB64_json();
+        byte[] imageBytes = Base64.getDecoder().decode(base64);
+        String id = jwtService.getDataFromToken(token);
+        MultipartFile generatedFile = new MockMultipartFile(
+                "image",
+                "result.png",
+                "image/png",
+                imageBytes
+        );
+        String blob = null;
+        try {
+            BattleDTO battleDTO = BattleDTO.builder()
+                    .userId(id)
+                    .id(battleId)
+                    .mobId(mobId)
+                    .build();
+            blob = photoStorageService.uploadBattlePhoto(generatedFile, battleDTO);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
