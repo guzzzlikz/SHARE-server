@@ -16,15 +16,18 @@ import java.util.Base64;
 
 @Configuration
 public class GCSConfiguration {
+
+    @Value("${spring.cloud.gcp.credentials.json-key}")
+    private String json;
+
     @Bean
     public Storage storage() throws IOException {
-        String json = System.getProperty("spring.cloud.gcp.credentials.json-key");
         GoogleCredentials credentials = GoogleCredentials.fromStream(
                 new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)))
                 .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
         Storage storage = StorageOptions.newBuilder()
                 .setCredentials(credentials)
-                .setProjectId(System.getProperty("spring.cloud.gcp.projectId"))
+                .setProjectId(System.getProperty("spring.cloud.gcp.project-id"))
                 .build()
                 .getService();
         return storage;
