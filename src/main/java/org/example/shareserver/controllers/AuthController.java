@@ -16,7 +16,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody User user) {
         return authService.register(user);
     }
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         String email = loginDTO.getEmail();
         String password = loginDTO.getPassword();
