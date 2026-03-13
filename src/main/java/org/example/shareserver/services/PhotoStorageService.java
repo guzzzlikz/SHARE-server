@@ -3,10 +3,20 @@ package org.example.shareserver.services;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import lombok.extern.slf4j.Slf4j;
+<<<<<<< HEAD
 import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+=======
+import org.example.shareserver.models.dtos.BattleDTO;
+import org.example.shareserver.models.entities.User;
+import org.example.shareserver.repositories.BattleRepository;
+import org.example.shareserver.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+>>>>>>> 3865542bcbfea8bf16673d06512e932666c2f8be
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +42,12 @@ public class PhotoStorageService {
     @Value("${gcs.bucket.item.photo.name}")
     private String itemBucketName;
 
+    @Autowired
+    private BattleRepository battleRepository;
+
+    @Value("${gcs.bucket.photo.name}")
+    private String bucketName;
+
     public String uploadUserProfilePhoto(MultipartFile file, String userId) throws IOException {
         log.info("Upload user profile method has been called");
         String blobName = "photos/user/" + userId + "/" + file.getOriginalFilename();
@@ -50,7 +66,7 @@ public class PhotoStorageService {
                 .setContentType(file.getContentType())
                 .build();
         storage.create(blobInfo, file.getBytes());
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(enemyId).orElseThrow();
         user.setPathToPhoto(blobName);
         return blobName;
     }
@@ -71,7 +87,6 @@ public class PhotoStorageService {
             case MOB -> mobBucketName;
             case ITEM -> itemBucketName;
         };
-
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, objectName).build();
         URL signedUrl = storage.signUrl(
                 blobInfo,
@@ -79,5 +94,19 @@ public class PhotoStorageService {
                 Storage.SignUrlOption.withV4Signature()
         );
         return signedUrl.toString();
+    }
+
+    public String uploadBattlePhoto(MultipartFile file, BattleDTO battleDTO) throws IOException {
+        log.info("Upload battle photo has been called");
+        String blobName = "photos/battle/" + battleDTO.getId() + "/" +
+                battleDTO.getUserId() + "/" + battleDTO.getMobId()
+                + file.getOriginalFilename();
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, blobName)
+                .setContentType(file.getContentType())
+                .build();
+        storage.create(blobInfo, file.getBytes());
+        BattleDTO battleDTOToDb = battleRepository.findById(battleDTO.getId()).orElseThrow();
+        battleDTOToDb.setPathToPhoto(blobName);
+        return blobName;
     }
 }

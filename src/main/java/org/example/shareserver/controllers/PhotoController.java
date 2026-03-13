@@ -7,6 +7,9 @@ import org.example.shareserver.repositories.EnemyRepository;
 import org.example.shareserver.repositories.ItemRepository;
 import org.example.shareserver.repositories.UserRepository;
 import org.example.shareserver.services.BucketType;
+import org.example.shareserver.models.entities.User;
+import org.example.shareserver.repositories.UserRepository;
+import org.example.shareserver.services.JWTService;
 import org.example.shareserver.services.PhotoStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,10 +35,12 @@ public class PhotoController {
     @Autowired
     private ItemRepository itemRepository;
 
-    @PostMapping("/{userId}/uploadUser")
-    public ResponseEntity<?> uploadUserProfilePhoto(@PathVariable String userId,
-                                                    @RequestParam("file") MultipartFile file) {
+    private JWTService jwtService;
+
+    @PostMapping("uploadUser")
+    public ResponseEntity<?> uploadUserProfilePhoto(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
         try {
+            String userId = jwtService.getDataFromToken(token);
             String gcsPath = photoStorageService.uploadUserProfilePhoto(file, userId);
             Optional<User> user = userRepository.findById(userId);
             if (user.isEmpty()) {
