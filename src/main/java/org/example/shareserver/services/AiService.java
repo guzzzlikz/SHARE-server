@@ -1,6 +1,6 @@
 package org.example.shareserver.services;
 
-import org.example.shareserver.models.Product;
+import org.example.shareserver.models.entities.Product;
 import org.example.shareserver.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;

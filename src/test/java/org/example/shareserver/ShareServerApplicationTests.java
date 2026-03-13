@@ -1,8 +1,7 @@
 package org.example.shareserver;
 
-import org.example.shareserver.models.LoginDTO;
-import org.example.shareserver.models.Product;
-import org.example.shareserver.models.User;
+import org.example.shareserver.models.dtos.LoginDTO;
+import org.example.shareserver.models.entities.Product;
 import org.example.shareserver.services.JWTService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

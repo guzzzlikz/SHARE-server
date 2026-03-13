@@ -1,6 +1,6 @@
 package org.example.shareserver.repositories;
 
-import org.example.shareserver.models.User;
+import org.example.shareserver.models.entities.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

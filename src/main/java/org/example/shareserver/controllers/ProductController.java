@@ -1,8 +1,7 @@
 package org.example.shareserver.controllers;
 
-import lombok.*;
-import org.example.shareserver.models.ParamsDTO;
-import org.example.shareserver.models.Product;
+import org.example.shareserver.models.dtos.ParamsDTO;
+import org.example.shareserver.models.entities.Product;
 import org.example.shareserver.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

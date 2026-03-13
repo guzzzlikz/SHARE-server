@@ -3,7 +3,7 @@ package org.example.shareserver.services;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.components.HashComponent;
 import org.example.shareserver.models.ApiResponse;
-import org.example.shareserver.models.User;
+import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;

@@ -1,4 +1,4 @@
-package org.example.shareserver.models;
+package org.example.shareserver.models.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

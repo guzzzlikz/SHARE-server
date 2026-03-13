@@ -1,7 +1,7 @@
 package org.example.shareserver.controllers;
 
-import org.example.shareserver.models.LoginDTO;
-import org.example.shareserver.models.User;
+import org.example.shareserver.models.dtos.LoginDTO;
+import org.example.shareserver.models.entities.User;
 import org.example.shareserver.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

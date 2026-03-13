@@ -1,8 +1,8 @@
 package org.example.shareserver.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.shareserver.models.ParamsDTO;
-import org.example.shareserver.models.Product;
+import org.example.shareserver.models.dtos.ParamsDTO;
+import org.example.shareserver.models.entities.Product;
 import org.example.shareserver.repositories.ProductRepository;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
