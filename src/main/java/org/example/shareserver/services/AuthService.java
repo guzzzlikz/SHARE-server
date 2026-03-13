@@ -45,19 +45,11 @@ public class AuthService {
             log.info("AuthService has been called but email is empty");
         }
         else {user.setEmail(user.getEmail().trim());}
-        if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
-            errorMsg.append("First name is required\n");
-            log.info("AuthService has been called but first name is empty");
+        if (user.getNickname() == null || user.getNickname().isEmpty()) {
+            errorMsg.append("Nickname is required\n");
+            log.info("AuthService has been called but nickname is empty");
         }
-        else {user.setFirstName(user.getFirstName().trim());}
-        if (user.getLastName() == null || user.getLastName().isEmpty()) {
-            errorMsg.append("Last name is required\n");
-            log.info("AuthService has been called but last name is empty");
-        }
-        else {user.setLastName(user.getLastName().trim());}
-        if (!errorMsg.isEmpty()) {
-            return ResponseEntity.badRequest().body(errorMsg.toString());
-        }
+        else {user.setNickname(user.getNickname().trim());}
         userRepository.save(user);
         String token = jwtService.generateToken(user.getId());
         return ResponseEntity.status(200).body(new ApiResponse(token, "User registered successfully", user));
