@@ -37,8 +37,6 @@ public class AiService {
     @Autowired
     private PhotoStorageService photoStorageService;
     @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
     private WebClient webClient;
     @Autowired
     private EnemyRepository enemyRepository;

@@ -34,7 +34,7 @@ class BattleServiceTest {
     void generateBattle_returns_404_when_user_not_found() {
         when(userRepository.findById("unknown")).thenReturn(Optional.empty());
 
-        ResponseEntity<?> res = battleService.generateBattle("unknown");
+        ResponseEntity<?> res = battleService.generateBattle("unknown", "unknown");
 
         assertThat(res.getStatusCode().value()).isEqualTo(404);
         assertThat(res.getBody()).asString().contains("User not found");
@@ -52,7 +52,7 @@ class BattleServiceTest {
         user.setItems(List.of(item));
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
 
-        ResponseEntity<?> res = battleService.generateBattle("u1");
+        ResponseEntity<?> res = battleService.generateBattle("u1", "e1");
 
         assertThat(res.getStatusCode().value()).isEqualTo(200);
         assertThat(user.getHp()).isEqualTo(110);
@@ -69,7 +69,7 @@ class BattleServiceTest {
         user.setItems(null);
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
 
-        ResponseEntity<?> res = battleService.generateBattle("u1");
+        ResponseEntity<?> res = battleService.generateBattle("u1", "e1");
 
         assertThat(res.getStatusCode().value()).isEqualTo(200);
         assertThat(user.getHp()).isEqualTo(100);
