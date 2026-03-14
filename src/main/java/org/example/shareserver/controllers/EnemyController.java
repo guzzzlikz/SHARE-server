@@ -5,7 +5,9 @@ import org.example.shareserver.components.AuthHeaderHelper;
 import org.example.shareserver.models.dtos.CreateEnemyDTO;
 import org.example.shareserver.models.entities.Enemy;
 import org.example.shareserver.repositories.EnemyRepository;
+import org.example.shareserver.services.BucketType;
 import org.example.shareserver.services.EnemyService;
+import org.example.shareserver.services.PhotoStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +28,13 @@ public class EnemyController {
 
     @Autowired
     private AuthHeaderHelper authHeaderHelper;
+    @Autowired
+    private PhotoStorageService photoStorageService;
 
     @GetMapping("/{city}")
     public ResponseEntity<?> findByCity(@PathVariable String city) {
         List<Enemy> enemies = enemyRepository.findByCity(city);
+        enemies.stream().forEach(e -> e.setPathToPhoto(photoStorageService.getSignedUrl(e.getPathToPhoto(), BucketType.MOB)));
         return ResponseEntity.ok().body(enemies);
     }
 
