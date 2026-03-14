@@ -40,6 +40,8 @@ public class AiService {
     private WebClient webClient;
     @Autowired
     private EnemyRepository enemyRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public ResponseEntity<?> ask(String prompt) {
         if (prompt == null || prompt.isEmpty()) {
@@ -238,9 +240,8 @@ reason: short explanation of why the image does or does not match the location
                 .get(0)
                 .path("text")
                 .asText();
-        int probability = Integer.parseInt(
-                text.replaceAll("[^0-9]", "")
-        );
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(text);
+        int probability = m.find() ? Integer.parseInt(m.group()) : 0;
         if (probability > 50) {
             return ResponseEntity.status(200).build();
         }
