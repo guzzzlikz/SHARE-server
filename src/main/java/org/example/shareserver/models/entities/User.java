@@ -44,18 +44,22 @@ public class User {
         }
     }
 
-    public void setXp(int xp){
+    public void setXp(int xp) {
         this.xp = xp;
-        if (lvlMap == null) {
-            return;
-        }
+        if (lvlMap == null) return;
+
+        int newLvl = 0;
         for (int i = 0; i < lvlMap.size(); i++) {
-            int lvlXp = lvlMap.get(i + 1);
-            if (xp < lvlXp && lvl < i + 1) {
-                this.lvl = i + 1;
-                this.hp += 5;
-                this.damage += 5;
+            if (xp >= lvlMap.get(i + 1)) {
+                newLvl = i + 1;
             }
         }
+
+        if (newLvl > this.lvl) {
+            int levelsGained = newLvl - this.lvl;
+            this.hp     += 5 * levelsGained;
+            this.damage += 5 * levelsGained;
+        }
+        this.lvl = newLvl;
     }
 }
