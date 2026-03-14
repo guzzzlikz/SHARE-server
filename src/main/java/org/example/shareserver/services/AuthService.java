@@ -30,11 +30,6 @@ public class AuthService {
             log.info("AuthService has been called but user is already registered");
             return ResponseEntity.badRequest().body(errorMsg.toString());
         }
-        if (user.getId() == null || user.getId().isEmpty()) {
-            errorMsg.append("User id is required\n");
-            log.info("AuthService has been called but id is empty");
-        }
-        else {user.setId(user.getId().trim());}
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             errorMsg.append("Password is required\n");
             log.info("AuthService has been called but password is empty");

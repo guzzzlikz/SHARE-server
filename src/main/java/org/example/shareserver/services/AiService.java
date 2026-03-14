@@ -135,7 +135,7 @@ public class AiService {
 
     }
 
-    public ResponseEntity<?> generateBattlePhoto(MultipartFile file, String token, String battleId, String mobId) {
+    public ResponseEntity<?> generateBattlePhoto(MultipartFile file, String token) {
         if (file == null || file.isEmpty()) {
             log.info("AI service has been called but file is empty");
             return ResponseEntity.status(400).body("File cannot be empty");
@@ -186,8 +186,6 @@ public class AiService {
         try {
             BattleDTO battleDTO = BattleDTO.builder()
                     .userId(id)
-                    .id(battleId)
-                    .mobId(mobId)
                     .build();
             blob = photoStorageService.uploadBattlePhoto(generatedFile, battleDTO);
         } catch (IOException e) {

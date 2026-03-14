@@ -91,15 +91,6 @@ public class PhotoStorageService {
 
         return blobName;
     }
-    public String uploadGmapsPhoto(MultipartFile file, String battleId) throws IOException {
-        String blobName = "photos/gmaps/" + battleId + "/" + file.getOriginalFilename();
-        BlobInfo blobInfo = BlobInfo.newBuilder(gmapsBucketName, blobName)
-                .setContentType(file.getContentType())
-                .build();
-        storage.create(blobInfo, file.getBytes());
-
-        return blobName;
-    }
 
     public String getSignedUrl(String objectName, BucketType bucketType) {
         String bucketName = switch (bucketType){
@@ -120,9 +111,9 @@ public class PhotoStorageService {
 
     public String uploadBattlePhoto(MultipartFile file, BattleDTO battleDTO) throws IOException {
         log.info("Upload battle photo has been called");
-        String blobName = "photos/battle/" + battleDTO.getId() + "/" +
-                battleDTO.getUserId() + "/" + battleDTO.getMobId()
-                + file.getOriginalFilename();
+        String blobName = "photos/battle/" +
+                battleDTO.getUserId() + "/"
+                + "battle";
         BlobInfo blobInfo = BlobInfo.newBuilder(battleBucketName, blobName)
                 .setContentType(file.getContentType())
                 .build();
@@ -131,5 +122,9 @@ public class PhotoStorageService {
         battleDTOToDb.setPathToPhoto(blobName);
         battleRepository.save(battleDTOToDb);
         return blobName;
+    }
+    public void removeBattlePhoto(String id) {
+        String blobName = "photos/battle/" + id + "/battle";
+        storage.delete(battleBucketName, blobName);
     }
 }

@@ -41,9 +41,8 @@ public class AiController {
     @PostMapping("/generate-battle-photo")
     public ResponseEntity<?> generateBattlePhoto(@RequestPart("file") MultipartFile file,
                                                  @RequestHeader("Authorization") String token,
-                                                 @RequestParam String battleId,
                                                  @RequestParam String mobId) {
-        return aiService.generateBattlePhoto(file, token, battleId, mobId);
+        return aiService.generateBattlePhoto(file, token);
     }
     @GetMapping("/generate-chests")
     public ResponseEntity<?> generateChests(@RequestParam("city") String city) {
