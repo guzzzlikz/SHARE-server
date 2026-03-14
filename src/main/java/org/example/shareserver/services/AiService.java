@@ -340,7 +340,7 @@ reason: short explanation of why the image does or does not match the location
                                         "Your goal is to generate absolutely truthful story " +
                                         "sourcing through the internet about some interesting events " +
                                         "that have ever happened on this street or the street nearby. " +
-                                        "Your story should be not bigger than 3 sentences. " +
+                                        "Your story should be not bigger than 2 sentences. " +
                                         langInstruction + " Street: " + street),
                         Map.of("role", "user",
                                 "content", "")
