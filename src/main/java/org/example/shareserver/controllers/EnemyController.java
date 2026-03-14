@@ -29,7 +29,7 @@ public class EnemyController {
     }
 
     @PostMapping("/{enemyId}/kill")
-    public ResponseEntity<?> killEnemyById(@PathVariable String enemyId, @PathVariable String userId,
+    public ResponseEntity<?> killEnemyById(@PathVariable String enemyId,
                                            @RequestHeader("Authorization") String authHeader){
 
         return enemyService.killEnemyById(enemyId, authHeader);
@@ -37,7 +37,7 @@ public class EnemyController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createEnemy(@RequestBody Enemy enemy) {
-        enemyRepository.save(enemy);
-        return ResponseEntity.ok("Created");
+        Enemy enemy1 = enemyRepository.save(enemy);
+        return ResponseEntity.ok(enemy1);
     }
 }

@@ -1,5 +1,6 @@
 package org.example.shareserver.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.models.entities.Enemy;
 import org.example.shareserver.models.entities.Item;
 import org.example.shareserver.models.entities.User;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 @RequestMapping("/photo")
 public class PhotoController {
 
@@ -54,12 +56,12 @@ public class PhotoController {
         }
     }
 
-    @PostMapping("/{enemyId}/uploadEnemy")
-    public ResponseEntity<?> uploadItemProfilePhoto(@PathVariable String enemyId,
+    @PostMapping("/{itemId}/uploadItem")
+    public ResponseEntity<?> uploadItemProfilePhoto(@PathVariable String itemId,
                                                     @RequestParam("file") MultipartFile file) {
         try {
-            String gcsPath = photoStorageService.uploadItemProfilePhoto(file, enemyId);
-            Optional<Item> user = itemRepository.findById(enemyId);
+            String gcsPath = photoStorageService.uploadItemProfilePhoto(file, itemId);
+            Optional<Item> user = itemRepository.findById(itemId);
             if (user.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -71,12 +73,14 @@ public class PhotoController {
         }
     }
 
-    @PostMapping("/{itemId}/uploadItem")
-    public ResponseEntity<?> uploadEnemyProfilePhoto(@PathVariable String itemId,
+    @PostMapping("/{enemyId}/uploadEnemy")
+    public ResponseEntity<?> uploadEnemyProfilePhoto(@PathVariable String enemyId,
                                                      @RequestParam("file") MultipartFile file) {
         try {
-            String gcsPath = photoStorageService.uploadEnemyProfilePhoto(file, itemId);
-            Optional<Enemy> user = enemyRepository.findById(itemId);
+            log.info("enemy id: {}", enemyId);
+            String gcsPath = photoStorageService.  uploadEnemyProfilePhoto(file, enemyId);
+
+            Optional<Enemy> user = enemyRepository.findById(enemyId);
             if (user.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }

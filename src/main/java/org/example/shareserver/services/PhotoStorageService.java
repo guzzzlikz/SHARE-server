@@ -3,7 +3,9 @@ package org.example.shareserver.services;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import lombok.extern.slf4j.Slf4j;
+import org.example.shareserver.models.entities.Enemy;
 import org.example.shareserver.models.entities.User;
+import org.example.shareserver.repositories.EnemyRepository;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +32,13 @@ public class PhotoStorageService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EnemyRepository enemyRepository;
+
     @Value("${gcs.bucket.photo.name}")
     private String userBucketName;
 
-    @Value("${gcs.bucket.battle.photo.name")
+    @Value("${gcs.bucket.battle.photo.name}")
     private String battleBucketName;
 
     @Value("${gcs.bucket.mob.photo.name}")
@@ -57,6 +62,7 @@ public class PhotoStorageService {
         storage.create(blobInfo, file.getBytes());
         User user = userRepository.findById(userId).orElseThrow();
         user.setPathToPhoto(blobName);
+        userRepository.save(user);
         return blobName;
     }
 
@@ -66,8 +72,10 @@ public class PhotoStorageService {
                 .setContentType(file.getContentType())
                 .build();
         storage.create(blobInfo, file.getBytes());
-        User user = userRepository.findById(enemyId).orElseThrow();
-        user.setPathToPhoto(blobName);
+        log.info("enemy id: {}", enemyId);
+        Enemy enemy = enemyRepository.findById(enemyId).orElseThrow();
+        enemy.setPathToPhoto(blobName);
+        enemyRepository.save(enemy);
         return blobName;
     }
 
@@ -108,6 +116,7 @@ public class PhotoStorageService {
         storage.create(blobInfo, file.getBytes());
         BattleDTO battleDTOToDb = battleRepository.findById(battleDTO.getId()).orElseThrow();
         battleDTOToDb.setPathToPhoto(blobName);
+        battleRepository.save(battleDTOToDb);
         return blobName;
     }
 }

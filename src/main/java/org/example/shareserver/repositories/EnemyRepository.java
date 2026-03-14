@@ -11,5 +11,4 @@ import java.util.List;
 public interface EnemyRepository extends MongoRepository<Enemy, String> {
     List<Enemy> findByCity(String city);
 
-    List<Enemy> findByKilledAtBefore(Instant time);
 }

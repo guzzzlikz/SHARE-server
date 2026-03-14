@@ -23,6 +23,6 @@ public class Enemy {
     private double longitude;
     private double latitude;
     private int hp;
-    private int damage;
-    private Instant killedAt;
+    private int damageToEnemy;
+    private boolean isBoss;
 }

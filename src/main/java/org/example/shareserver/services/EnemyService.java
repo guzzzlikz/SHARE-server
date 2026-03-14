@@ -46,15 +46,26 @@ public class EnemyService {
         Enemy enemy = enemyOpt.get();
         User user = userOpt.get();
 
-        Random random = new Random();
-        int coinPrize = (int) Math.round( 200 * random.nextDouble());
-        int gemsPrize = (int) Math.round( 20 * random.nextDouble());
+        int coinPrize;
+        int gemsPrize = 0;
+        int xp;
+        if(enemy.isBoss()){
+            coinPrize = 50;
+            gemsPrize = 5;
+            xp = 100;
+        } else {
+            coinPrize = 15;
+            xp = 25;
+        }
 
-        user.setCoins(coinPrize);
-        user.setGems(gemsPrize);
+
+        user.setCoins(user.getCoins() + coinPrize);
+        user.setGems(user.getGems() + gemsPrize);
+        user.setXp(user.getXp() + xp);
+
 
         enemyRepository.save(enemy);
         userRepository.save(user);
-        return ResponseEntity.ok("Enemy was disable successfully, time expiration: " + enemy.getKilledAt());
+        return ResponseEntity.ok("Enemy was killed successfully");
     }
 }
