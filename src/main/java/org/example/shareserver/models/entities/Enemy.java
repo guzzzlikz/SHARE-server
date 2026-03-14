@@ -25,4 +25,5 @@ public class Enemy {
     private int hp;
     private int damageToEnemy;
     private boolean isBoss;
+    private String chestType;
 }

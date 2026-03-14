@@ -45,4 +45,8 @@ public class AiController {
                                                  @RequestParam String mobId) {
         return aiService.generateBattlePhoto(file, token, battleId, mobId);
     }
+    @GetMapping("/generate-chests")
+    public ResponseEntity<?> generateChests(@RequestParam("city") String city) {
+        return aiService.generateChests(city);
+    }
 }

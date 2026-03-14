@@ -4,6 +4,8 @@ import io.jsonwebtoken.security.Jwks;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.models.dtos.BattleDTO;
 import org.example.shareserver.models.dtos.OpenAIImageDTO;
+import org.example.shareserver.models.entities.Enemy;
+import org.example.shareserver.repositories.EnemyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,9 +23,13 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,6 +43,8 @@ public class AiService {
     private ObjectMapper objectMapper;
     @Autowired
     private WebClient webClient;
+    @Autowired
+    private EnemyRepository enemyRepository;
 
     public ResponseEntity<?> ask(String prompt) {
         if (prompt == null || prompt.isEmpty()) {
@@ -263,6 +271,58 @@ reason: short explanation of why the image does or does not match the location
             return ResponseEntity.status(200).build();
         }
         return ResponseEntity.status(400).build();
+    }
+
+    public ResponseEntity<?> generateChests(String city) {
+        List<Enemy> list = enemyRepository.findAll().stream().limit(7).collect(Collectors.toList());
+        Map<String, Object> body = Map.of(
+                "model", "gpt-4o-mini",
+                "messages", List.of(
+                        Map.of("role", "system",
+                                "content", "You are an AI assistant that helps generate positions of enemies. " +
+                                        "Your goal is to generate latitude and longtitude" + list.size() + "times" +
+                                        "based on the city that I provide" + city +
+                                        "You should give only " +
+                                        "latitude:value " +
+                                        "longtitude:value " +
+                                        "Remember: your answer should not be huge - just few sentences" +
+                                        "The longtitude and latitude should be located closer to the center" +
+                                        "of the city. Avoid coordinates pointing to houses, point ONLY" +
+                                        "at streets!"),
+                        Map.of("role", "user",
+                                "content", "")
+                )
+        );
+        String prompt = webClient.post()
+                .uri("/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        JsonNode root = objectMapper.readTree(prompt);
+        String content = root
+                .path("choices")
+                .get(0)
+                .path("message")
+                .path("content")
+                .asText();
+        Pattern pattern = Pattern.compile("latitude:\\s*([0-9.]+).*?longitude:\\s*([0-9.]+)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(content);
+
+        List<double[]> coordinates = new ArrayList<>();
+        while (matcher.find()) {
+            double lat = Double.parseDouble(matcher.group(1));
+            double lng = Double.parseDouble(matcher.group(2));
+            coordinates.add(new double[]{lat, lng});
+        }
+        List<Enemy> output = new ArrayList<>();
+        for (int i = 0; i < coordinates.size(); i++) {
+            list.get(i).setLatitude(coordinates.get(i)[0]);
+            list.get(i).setLongitude(coordinates.get(i)[1]);
+            output.add(list.get(i));
+        }
+        return ResponseEntity.ok().body(output);
     }
 }
 class MultipartInputStreamFileResource extends InputStreamResource {
