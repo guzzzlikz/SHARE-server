@@ -4,5 +4,6 @@ public enum BucketType {
     USER,
     MOB,
     ITEM,
-    BATTLE
+    BATTLE,
+    GMAPS
 }

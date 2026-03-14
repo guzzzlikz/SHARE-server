@@ -18,6 +18,7 @@ public class ShareServerApplication {
         System.setProperty("jwt.secret", Objects.requireNonNull(env.get("JWT.SECRET")));
         System.setProperty("ai.key", Objects.requireNonNull(env.get("AI.KEY")));
         System.setProperty("spring.cloud.gcp.credentials.json-key", Objects.requireNonNull(env.get("GCS.KEY")));
+        System.setProperty("gmaps.key", Objects.requireNonNull(env.get("GMAPS.KEY")));
         SpringApplication.run(ShareServerApplication.class, args);
     }
 }
