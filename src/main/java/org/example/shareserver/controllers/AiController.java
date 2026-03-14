@@ -65,4 +65,10 @@ public class AiController {
     public ResponseEntity<?> generateChests(@RequestParam(value = "city", required = false) String city) {
         return aiService.generateChests(city);
     }
+
+    @GetMapping("/generate-enemies")
+    public ResponseEntity<?> generateEnemies(@RequestParam(value = "city", required = false) String city,
+                                             @RequestParam(value = "place", required = false) String place){
+        return aiService.generateEnemies(city, place);
+    }
 }

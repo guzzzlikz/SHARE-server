@@ -324,6 +324,74 @@ reason: short explanation of why the image does or does not match the location
         }
         return ResponseEntity.ok().body(output);
     }
+
+    public ResponseEntity<?> generateEnemies(String city, String place){
+        if (city == null || city.isBlank()) {
+            return ResponseEntity.status(400).body("City is required");
+        }
+        if (place == null || place.isBlank()){
+            return ResponseEntity.status(400).body("Place is required");
+        }
+        List<Enemy> list = enemyRepository.findAll().stream().limit(5).collect(Collectors.toList());
+        Map<String, Object> body = Map.of(
+                "model", "gpt-4o-mini",
+                "messages", List.of(
+                        Map.of("role", "system",
+                                "content", "You are an AI assistant that helps generate positions of enemies. " +
+                                        "Your goal is to generate latitude and longtitude" + list.size() + "times" +
+                                        "based on the city that I provide {" + city + "} " +
+                                        "and place in this city I also provide {" + place + "} " +
+                                        "You should give only " +
+                                        "latitude:value " +
+                                        "longtitude:value " +
+                                        "Remember: your answer should not be huge - just few sentences" +
+                                        "The longtitude and latitude should be located closer to the center" +
+                                        "of the city. Avoid coordinates pointing to houses, point ONLY" +
+                                        "at streets!"),
+                        Map.of("role", "user",
+                                "content", "")
+                )
+        );
+        String prompt = webClient.post()
+                .uri("/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        JsonNode root;
+        try {
+            root = objectMapper.readTree(prompt);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse AI response", e);
+        }
+        String content = root
+                .path("choices")
+                .get(0)
+                .path("message")
+                .path("content")
+                .asText();
+        content = content.toLowerCase();
+        Pattern pattern = Pattern.compile("latitude:\\s*([0-9.]+).*?longitude:\\s*([0-9.]+)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(content);
+
+        List<double[]> coordinates = new ArrayList<>();
+        while (matcher.find()) {
+            double lat = Double.parseDouble(matcher.group(1));
+            double lng = Double.parseDouble(matcher.group(2));
+            coordinates.add(new double[]{lat, lng});
+        }
+        int count = Math.min(coordinates.size(), list.size());
+        List<Enemy> output = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Enemy enemy = list.get(i);
+            double[] coord = coordinates.get(i);
+            enemy.setLatitude(coord[0]);
+            enemy.setLongitude(coord[1]);
+            output.add(enemy);
+        }
+        return ResponseEntity.ok().body(output);
+    }
     public ResponseEntity<?> generateStory(String street, String lang) {
         if (street == null || street.isEmpty()) {
             return ResponseEntity.status(400).build();
