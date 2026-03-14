@@ -274,13 +274,14 @@ reason: short explanation of why the image does or does not match the location
     }
 
     public ResponseEntity<?> generateChests(String city) {
-        List<Enemy> list = enemyRepository.findAll().stream().limit(7).collect(Collectors.toList());
+        List<Enemy> list = enemyRepository.findAll().stream().limit(10).collect(Collectors.toList());
+        List<Enemy> chests = list.stream().filter(c -> c.getChestType() != null).toList();
         Map<String, Object> body = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(
                         Map.of("role", "system",
                                 "content", "You are an AI assistant that helps generate positions of enemies. " +
-                                        "Your goal is to generate latitude and longtitude" + list.size() + "times" +
+                                        "Your goal is to generate latitude and longtitude" + chests.size() + "times" +
                                         "based on the city that I provide" + city +
                                         "You should give only " +
                                         "latitude:value " +
@@ -307,6 +308,7 @@ reason: short explanation of why the image does or does not match the location
                 .path("message")
                 .path("content")
                 .asText();
+        content = content.toLowerCase();
         Pattern pattern = Pattern.compile("latitude:\\s*([0-9.]+).*?longitude:\\s*([0-9.]+)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(content);
 
@@ -318,8 +320,8 @@ reason: short explanation of why the image does or does not match the location
         }
         List<Enemy> output = new ArrayList<>();
         for (int i = 0; i < coordinates.size(); i++) {
-            list.get(i).setLatitude(coordinates.get(i)[0]);
-            list.get(i).setLongitude(coordinates.get(i)[1]);
+            chests.get(i).setLatitude(coordinates.get(i)[0]);
+            chests.get(i).setLongitude(coordinates.get(i)[1]);
             output.add(list.get(i));
         }
         return ResponseEntity.ok().body(output);
