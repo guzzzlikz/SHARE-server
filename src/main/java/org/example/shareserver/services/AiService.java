@@ -1,6 +1,7 @@
 package org.example.shareserver.services;
 
-import io.jsonwebtoken.security.Jwks;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.models.dtos.BattleDTO;
 import org.example.shareserver.models.dtos.OpenAIImageDTO;
@@ -17,8 +18,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
@@ -228,8 +227,12 @@ reason: short explanation of why the image does or does not match the location
                 .bodyToMono(String.class)
                 .block();
         log.info("Response succeeded!");
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(response);
+        JsonNode root;
+        try {
+            root = objectMapper.readTree(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse AI response", e);
+        }
         String text = root
                 .path("output")
                 .get(0)
@@ -277,7 +280,12 @@ reason: short explanation of why the image does or does not match the location
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        JsonNode root = objectMapper.readTree(prompt);
+        JsonNode root;
+        try {
+            root = objectMapper.readTree(prompt);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse AI response", e);
+        }
         String content = root
                 .path("choices")
                 .get(0)
@@ -331,7 +339,12 @@ reason: short explanation of why the image does or does not match the location
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        JsonNode root = objectMapper.readTree(prompt);
+        JsonNode root;
+        try {
+            root = objectMapper.readTree(prompt);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse AI response", e);
+        }
         String content = root
                 .path("choices")
                 .get(0)
@@ -362,7 +375,12 @@ reason: short explanation of why the image does or does not match the location
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        JsonNode root = objectMapper.readTree(prompt);
+        JsonNode root;
+        try {
+            root = objectMapper.readTree(prompt);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse AI response", e);
+        }
         String content = root
                 .path("choices")
                 .get(0)

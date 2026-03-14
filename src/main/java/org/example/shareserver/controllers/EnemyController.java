@@ -9,6 +9,7 @@ import org.example.shareserver.services.EnemyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,19 @@ public class EnemyController {
             return ResponseEntity.status(401).body("Unauthorized");
         }
         return enemyService.killEnemyById(enemyId, userId.get());
+    }
+
+    @PostMapping("/{enemyId}/verify-location")
+    public ResponseEntity<?> verifyLocation(
+            @PathVariable String enemyId,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam("photo") MultipartFile photo,
+            @RequestParam double lat,
+            @RequestParam double lng) {
+        if (authHeaderHelper.getUserIdFromAuthHeader(authHeader).isEmpty()) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        return enemyService.verifyLocation(enemyId, photo, lat, lng);
     }
 
     @PostMapping("/create")

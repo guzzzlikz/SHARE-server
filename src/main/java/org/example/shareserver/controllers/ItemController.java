@@ -56,11 +56,7 @@ public class ItemController {
         List<Item> items = user.getItems();
         if (items == null) {
             items = new ArrayList<>();
-            user.setItems(items);
         }
-        Item item = new Item();
-        items.add(item);
-        userRepository.save(user);
-        return ResponseEntity.ok(item);
+        return ResponseEntity.ok(items);
     }
 }
