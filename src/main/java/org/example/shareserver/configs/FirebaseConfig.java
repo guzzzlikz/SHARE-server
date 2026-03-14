@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Slf4j
 @Configuration
@@ -34,13 +35,16 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void init() throws IOException {
+        byte[] decodedBytes = Base64.getDecoder().decode(serviceAccountJson);
+        String json = new String(decodedBytes, StandardCharsets.UTF_8)
+                .replace("\\n", "\n");
         if (!FirebaseApp.getApps().isEmpty()) return;
 
         InputStream credentialsStream = null;
 
-        if (!serviceAccountJson.isBlank()) {
+        if (!json.isBlank()) {
             credentialsStream = new ByteArrayInputStream(
-                    serviceAccountJson.getBytes(StandardCharsets.UTF_8));
+                    json.getBytes(StandardCharsets.UTF_8));
             log.info("FirebaseApp: using JSON from FIREBASE_SERVICE_ACCOUNT_JSON env var");
         } else if (!serviceAccountPath.isBlank()) {
             credentialsStream = new FileInputStream(serviceAccountPath);

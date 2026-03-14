@@ -19,6 +19,7 @@ public class ShareServerApplication {
         System.setProperty("ai.key", Objects.requireNonNull(env.get("AI.KEY")));
         System.setProperty("spring.cloud.gcp.credentials.json-key", Objects.requireNonNull(env.get("GCS.KEY")));
         System.setProperty("gmaps.key", Objects.requireNonNull(env.get("GMAPS.KEY")));
+        System.setProperty("firebase.service.account.json", Objects.requireNonNull(env.get("FIREBASE_SERVICE_ACCOUNT_JSON")));
         SpringApplication.run(ShareServerApplication.class, args);
     }
 }
