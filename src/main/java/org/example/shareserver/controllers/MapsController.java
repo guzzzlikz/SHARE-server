@@ -14,8 +14,11 @@ public class MapsController {
     @Autowired
     private MapsService mapsService;
     @GetMapping("street")
-    public ResponseEntity<?> getStreetFromCoordinates(@RequestParam double latitude, @RequestParam double longitude) {
-        return mapsService.getStreetFromCoordinates(latitude, longitude);
+    public ResponseEntity<?> getStreetFromCoordinates(
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam(defaultValue = "en") String lang) {
+        return mapsService.getStreetFromCoordinates(latitude, longitude, lang);
     }
     @GetMapping("quiz")
     public ResponseEntity<?> generateQuizOnStreetFromCoordinates(@RequestParam double latitude, @RequestParam double longitude) {

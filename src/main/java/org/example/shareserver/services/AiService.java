@@ -324,21 +324,24 @@ reason: short explanation of why the image does or does not match the location
         }
         return ResponseEntity.ok().body(output);
     }
-    public ResponseEntity<?> generateStory(String street) {
+    public ResponseEntity<?> generateStory(String street, String lang) {
         if (street == null || street.isEmpty()) {
             return ResponseEntity.status(400).build();
         }
+        String langInstruction = "uk".equalsIgnoreCase(lang)
+                ? " Respond in Ukrainian language."
+                : " Respond in English language.";
         Map<String, Object> body = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(
                         Map.of("role", "system",
                                 "content", "You are an AI assistant that helps generate " +
                                         "story based on the street. " +
-                                        "Your goal is to generate absolutely truthful story" +
-                                        "sourcing through the internet about some interestin events" +
-                                        "that have ever happened on this streat or the streat nearby." +
-                                        "Your story should be not bigger than 3 sentences" +
-                                        street),
+                                        "Your goal is to generate absolutely truthful story " +
+                                        "sourcing through the internet about some interesting events " +
+                                        "that have ever happened on this street or the street nearby. " +
+                                        "Your story should be not bigger than 3 sentences. " +
+                                        langInstruction + " Street: " + street),
                         Map.of("role", "user",
                                 "content", "")
                 )

@@ -15,7 +15,7 @@ public class MapsService {
     @Autowired
     private AiService aiService;
 
-    public ResponseEntity<?> getStreetFromCoordinates(double latitude, double longitude) {
+    public ResponseEntity<?> getStreetFromCoordinates(double latitude, double longitude, String lang) {
         WebClient webClient = WebClient.create();
         String response = webClient
                 .get()
@@ -32,7 +32,9 @@ public class MapsService {
                 return ResponseEntity.status(404).body("No address found for coordinates");
             }
             String address = results.get(0).path("formatted_address").asText();
-            return ResponseEntity.ok().body(aiService.generateStory(address));
+            ResponseEntity<?> storyResp = aiService.generateStory(address, lang);
+            String story = storyResp.getBody() != null ? storyResp.getBody().toString() : "";
+            return ResponseEntity.ok().body(story);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to parse geocode response");
         }
