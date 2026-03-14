@@ -200,7 +200,7 @@ public class AiService {
             return ResponseEntity.status(401).build();
         }
         log.info("Blob succeeded!");
-        return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob));
+        return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob, BucketType.BATTLE));
     }
 }
 class MultipartInputStreamFileResource extends InputStreamResource {

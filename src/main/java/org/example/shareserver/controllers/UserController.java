@@ -1,5 +1,6 @@
 package org.example.shareserver.controllers;
 
+import org.example.shareserver.models.dtos.LoginDTO;
 import org.example.shareserver.models.dtos.UserDTO;
 import org.example.shareserver.models.entities.Item;
 import org.example.shareserver.services.UserService;
@@ -17,7 +18,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/profile")
-    public ResponseEntity<?> changeProfileInfo(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> changeProfileInfo(@RequestBody LoginDTO userDTO) {
         return userService.changeProfileInfo(userDTO);
     }
 

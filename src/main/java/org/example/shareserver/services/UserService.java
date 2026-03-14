@@ -1,6 +1,7 @@
 package org.example.shareserver.services;
 
 import org.example.shareserver.mappers.UserMapper;
+import org.example.shareserver.models.dtos.LoginDTO;
 import org.example.shareserver.models.dtos.UserDTO;
 import org.example.shareserver.models.entities.Item;
 import org.example.shareserver.models.entities.User;
@@ -21,7 +22,7 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public ResponseEntity<?> changeProfileInfo(UserDTO userDto) {
+    public ResponseEntity<?> changeProfileInfo(LoginDTO userDto) {
         User user = userMapper.toUser(userDto);
         if(userRepository.findById(user.getId()).isEmpty()) {
             return ResponseEntity.status(404).body("User not found");

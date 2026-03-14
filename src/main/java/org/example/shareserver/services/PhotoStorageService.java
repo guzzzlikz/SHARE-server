@@ -3,12 +3,10 @@ package org.example.shareserver.services;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import lombok.extern.slf4j.Slf4j;
-<<<<<<< HEAD
 import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-=======
 import org.example.shareserver.models.dtos.BattleDTO;
 import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.BattleRepository;
@@ -16,7 +14,6 @@ import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
->>>>>>> 3865542bcbfea8bf16673d06512e932666c2f8be
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +32,9 @@ public class PhotoStorageService {
 
     @Value("${gcs.bucket.photo.name}")
     private String userBucketName;
+
+    @Value("${gcs.bucket.battle.photo.name")
+    private String battleBucketName;
 
     @Value("${gcs.bucket.mob.photo.name}")
     private String mobBucketName;
@@ -86,6 +86,7 @@ public class PhotoStorageService {
             case USER ->  userBucketName;
             case MOB -> mobBucketName;
             case ITEM -> itemBucketName;
+            case BATTLE -> battleBucketName;
         };
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, objectName).build();
         URL signedUrl = storage.signUrl(
