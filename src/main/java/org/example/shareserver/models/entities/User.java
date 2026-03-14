@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -30,13 +31,16 @@ public class User {
     private int gems = 10;
     private List<Item> items;
 
-    private Map<Integer, Integer> lvlMap; // lvl xp
+    private Map<Integer, Integer> lvlMap = new HashMap<>(); // lvl xp
 
     public User(){
         initMap();
     }
 
     private void initMap(){
+        if (lvlMap == null){
+            lvlMap = new HashMap<>();
+        }
         for (int i = 0; i < 20; i++) {
             lvlMap.put(i + 1, (int) (50 + 50 * Math.pow(1.1, i)));
         }
