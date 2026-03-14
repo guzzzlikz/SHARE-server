@@ -73,6 +73,7 @@ public class EnemyController {
         enemy.setDamageToEnemy(dto.getDamageToEnemy());
         enemy.setBoss(dto.isBoss());
         enemy.setChestType(dto.getChestType());
+        enemy.setDungeonEntrance(dto.isDungeonEntrance());
         Enemy saved = enemyRepository.save(enemy);
         return ResponseEntity.ok(saved);
     }

@@ -26,4 +26,5 @@ public class Enemy {
     private int damageToEnemy;
     private boolean isBoss;
     private String chestType;
+    private boolean dungeonEntrance;
 }
