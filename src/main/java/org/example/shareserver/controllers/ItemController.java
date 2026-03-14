@@ -1,15 +1,19 @@
 package org.example.shareserver.controllers;
+
+import jakarta.validation.Valid;
+import org.example.shareserver.components.AuthHeaderHelper;
+import org.example.shareserver.models.dtos.CreateItemDTO;
 import org.example.shareserver.models.entities.Item;
 import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.ItemRepository;
 import org.example.shareserver.repositories.UserRepository;
-import org.example.shareserver.services.JWTService;
-import org.example.shareserver.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -23,30 +27,40 @@ public class ItemController {
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JWTService jwtService;
+    private AuthHeaderHelper authHeaderHelper;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createEnemy(@RequestBody Item item) {
+    public ResponseEntity<?> createItem(@Valid @RequestBody CreateItemDTO dto) {
+        Item item = new Item();
+        item.setName(dto.getName());
+        item.setPathToPhoto(dto.getPathToPhoto());
+        item.setHp(dto.getHp());
+        item.setDamage(dto.getDamage());
+        item.setEquipped(dto.isEquipped());
         itemRepository.save(item);
-        return ResponseEntity.ok("Created");
+        return ResponseEntity.ok(item);
     }
 
     @GetMapping
-    public ResponseEntity<?> getItem(@RequestHeader("Authorization") String authHeader){
-        String userId = jwtService.getDataFromToken(authHeader);
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> getItem(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        Optional<String> userIdOpt = authHeaderHelper.getUserIdFromAuthHeader(authHeader);
+        if (userIdOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
-
-        // TODO add ai item choosing
+        String userId = userIdOpt.get();
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        User user = userOpt.get();
+        List<Item> items = user.getItems();
+        if (items == null) {
+            items = new ArrayList<>();
+            user.setItems(items);
+        }
         Item item = new Item();
-        user.get().getItems().add(item);
-        userService.changeItems(authHeader, user.get().getItems());
-
+        items.add(item);
+        userRepository.save(user);
         return ResponseEntity.ok(item);
     }
 }

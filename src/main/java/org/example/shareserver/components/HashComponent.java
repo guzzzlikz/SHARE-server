@@ -24,13 +24,11 @@ public class HashComponent {
     }
 
     public byte[] hashToByte(String input) {
-        MessageDigest digest = null;
         try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (Exception e) {
-            e.printStackTrace();
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return digest.digest(input.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
-        byte[] hash = digest.digest(input.getBytes());
-        return hash;
     }
 }

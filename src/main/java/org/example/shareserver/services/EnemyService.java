@@ -24,18 +24,12 @@ public class EnemyService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private JWTService jwtService;
-
-    public ResponseEntity<?> killEnemyById(String enemyId, String authToken){
+    public ResponseEntity<?> killEnemyById(String enemyId, String userId) {
         Optional<Enemy> enemyOpt = enemyRepository.findById(enemyId);
 
         if (enemyOpt.isEmpty()) {
             return ResponseEntity.status(404).body("Enemy not found");
         }
-
-        String token = authToken.replace("Bearer ", "");
-        String userId = jwtService.getDataFromToken(token);
 
         Optional<User> userOpt = userRepository.findById(userId);
 

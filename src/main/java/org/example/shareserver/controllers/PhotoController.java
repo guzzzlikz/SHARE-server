@@ -1,6 +1,7 @@
 package org.example.shareserver.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.shareserver.components.AuthHeaderHelper;
 import org.example.shareserver.models.entities.Enemy;
 import org.example.shareserver.models.entities.Item;
 import org.example.shareserver.models.entities.User;
@@ -8,9 +9,6 @@ import org.example.shareserver.repositories.EnemyRepository;
 import org.example.shareserver.repositories.ItemRepository;
 import org.example.shareserver.repositories.UserRepository;
 import org.example.shareserver.services.BucketType;
-import org.example.shareserver.models.entities.User;
-import org.example.shareserver.repositories.UserRepository;
-import org.example.shareserver.services.JWTService;
 import org.example.shareserver.services.PhotoStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,12 +35,18 @@ public class PhotoController {
     @Autowired
     private ItemRepository itemRepository;
 
-    private JWTService jwtService;
+    @Autowired
+    private AuthHeaderHelper authHeaderHelper;
 
     @PostMapping("uploadUser")
-    public ResponseEntity<?> uploadUserProfilePhoto(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadUserProfilePhoto(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                                     @RequestParam("file") MultipartFile file) {
+        Optional<String> userIdOpt = authHeaderHelper.getUserIdFromAuthHeader(authHeader);
+        if (userIdOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        String userId = userIdOpt.get();
         try {
-            String userId = jwtService.getDataFromToken(token);
             String gcsPath = photoStorageService.uploadUserProfilePhoto(file, userId);
             Optional<User> user = userRepository.findById(userId);
             if (user.isEmpty()) {
@@ -93,19 +97,16 @@ public class PhotoController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getUserPhoto(@RequestHeader("Authorization") String authHeader) {
-        if (authHeader == null || authHeader.isEmpty() || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(403).body("Token not found");
+    public ResponseEntity<?> getUserPhoto(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        Optional<String> userIdOpt = authHeaderHelper.getUserIdFromAuthHeader(authHeader);
+        if (userIdOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
-        String token = authHeader.replace("Bearer ", "");
-        String userId = jwtService.getDataFromToken(token);
-        Optional<User> user = userRepository.findById(userId);
+        Optional<User> user = userRepository.findById(userIdOpt.get());
         if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
         String url = photoStorageService.getSignedUrl(user.get().getPathToPhoto(), BucketType.USER);
-
         return ResponseEntity.ok(url);
     }
 }

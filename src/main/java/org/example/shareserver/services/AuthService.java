@@ -3,6 +3,7 @@ package org.example.shareserver.services;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.components.HashComponent;
 import org.example.shareserver.models.ApiResponse;
+import org.example.shareserver.models.dtos.RegisterDTO;
 import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,29 +24,17 @@ public class AuthService {
     private JWTService jwtService;
 
     @Cacheable("register")
-    public ResponseEntity<?> register(User user) {
-        StringBuilder errorMsg = new StringBuilder();
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            errorMsg.append("User is already registered\n");
+    public ResponseEntity<?> register(RegisterDTO dto) {
+        String email = dto.getEmail().trim();
+        if (userRepository.findByEmail(email) != null) {
             log.info("AuthService has been called but user is already registered");
-            return ResponseEntity.badRequest().body(errorMsg.toString());
+            return ResponseEntity.badRequest().body("User is already registered\n");
         }
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            errorMsg.append("Password is required\n");
-            log.info("AuthService has been called but password is empty");
-        }
-        else {user.setPassword(hashComponent.hash(user.getPassword()));}
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            errorMsg.append("Email is required\n");
-            log.info("AuthService has been called but email is empty");
-        }
-        else {user.setEmail(user.getEmail().trim());}
-
-        if (user.getNickname() == null || user.getNickname().isEmpty()) {
-            errorMsg.append("Nickname is required\n");
-            log.info("AuthService has been called but nickname is empty");
-        }
-        else {user.setNickname(user.getNickname().trim());}
+        User user = new User();
+        user.setId(dto.getId().trim());
+        user.setNickname(dto.getNickname().trim());
+        user.setEmail(email);
+        user.setPassword(hashComponent.hash(dto.getPassword()));
         userRepository.save(user);
         String token = jwtService.generateToken(user.getId());
         return ResponseEntity.status(200).body(new ApiResponse(token, "User registered successfully", user));

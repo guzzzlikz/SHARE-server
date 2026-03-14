@@ -1,9 +1,10 @@
 package org.example.shareserver.controllers;
 
+import jakarta.validation.Valid;
+import org.example.shareserver.components.AuthHeaderHelper;
+import org.example.shareserver.models.dtos.CreateEnemyDTO;
 import org.example.shareserver.models.entities.Enemy;
-import org.example.shareserver.models.entities.User;
 import org.example.shareserver.repositories.EnemyRepository;
-import org.example.shareserver.repositories.UserRepository;
 import org.example.shareserver.services.EnemyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ public class EnemyController {
     @Autowired
     private EnemyRepository enemyRepository;
 
+    @Autowired
+    private AuthHeaderHelper authHeaderHelper;
+
     @GetMapping("/{city}")
     public ResponseEntity<?> findByCity(@PathVariable String city) {
         List<Enemy> enemies = enemyRepository.findByCity(city);
@@ -30,14 +34,27 @@ public class EnemyController {
 
     @PostMapping("/{enemyId}/kill")
     public ResponseEntity<?> killEnemyById(@PathVariable String enemyId,
-                                           @RequestHeader("Authorization") String authHeader){
-
-        return enemyService.killEnemyById(enemyId, authHeader);
+                                           @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        Optional<String> userId = authHeaderHelper.getUserIdFromAuthHeader(authHeader);
+        if (userId.isEmpty()) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        return enemyService.killEnemyById(enemyId, userId.get());
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createEnemy(@RequestBody Enemy enemy) {
-        Enemy enemy1 = enemyRepository.save(enemy);
-        return ResponseEntity.ok(enemy1);
+    public ResponseEntity<?> createEnemy(@Valid @RequestBody CreateEnemyDTO dto) {
+        Enemy enemy = new Enemy();
+        enemy.setName(dto.getName());
+        enemy.setPathToPhoto(dto.getPathToPhoto());
+        enemy.setCity(dto.getCity());
+        enemy.setLongitude(dto.getLongitude());
+        enemy.setLatitude(dto.getLatitude());
+        enemy.setHp(dto.getHp());
+        enemy.setDamageToEnemy(dto.getDamageToEnemy());
+        enemy.setBoss(dto.isBoss());
+        enemy.setChestType(dto.getChestType());
+        Enemy saved = enemyRepository.save(enemy);
+        return ResponseEntity.ok(saved);
     }
 }

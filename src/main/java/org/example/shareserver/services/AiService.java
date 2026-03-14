@@ -38,8 +38,6 @@ public class AiService {
     @Autowired
     private PhotoStorageService photoStorageService;
     @Autowired
-    private JWTService jwtService;
-    @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private WebClient webClient;
@@ -74,22 +72,12 @@ public class AiService {
                 .block());
     }
 
-    public ResponseEntity<?> generateProfile(MultipartFile file, String token) {
+    public ResponseEntity<?> generateProfile(MultipartFile file, String userId) {
         if (file == null || file.isEmpty()) {
             log.info("AI service has been called but file is empty");
             return ResponseEntity.status(400).body("File cannot be empty");
         }
-        token = token.replace("Bearer ", "");
-        // Convert file to Base64
-        String base64File = null;
-        try {
-            base64File = Base64.getEncoder().encodeToString(file.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-
         form.add("model", "gpt-image-1");
         form.add("prompt", "convert this photo into anime style profile picture");
         form.add("size", "1024x1024");
@@ -114,16 +102,15 @@ public class AiService {
         log.info("Request succeeded!");
         String base64 = response.getData().get(0).getB64_json();
         byte[] imageBytes = Base64.getDecoder().decode(base64);
-        String id = jwtService.getDataFromToken(token);
         MultipartFile generatedFile = new MockMultipartFile(
                 "image",
                 "result.png",
                 "image/png",
                 imageBytes
         );
-        String blob = null;
+        String blob;
         try {
-            blob = photoStorageService.uploadUserProfilePhoto(generatedFile, id);
+            blob = photoStorageService.uploadUserProfilePhoto(generatedFile, userId);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -132,25 +119,14 @@ public class AiService {
         }
         log.info("Blob succeeded!");
         return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob, BucketType.USER));
-
     }
 
-    public ResponseEntity<?> generateBattlePhoto(MultipartFile file, String token) {
+    public ResponseEntity<?> generateBattlePhoto(MultipartFile file, String userId) {
         if (file == null || file.isEmpty()) {
             log.info("AI service has been called but file is empty");
             return ResponseEntity.status(400).body("File cannot be empty");
         }
-        token = token.replace("Bearer ", "");
-        // Convert file to Base64
-        String base64File = null;
-        try {
-            base64File = Base64.getEncoder().encodeToString(file.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-
         form.add("model", "gpt-image-1");
         form.add("prompt", "convert this landscape into anime fantasy location");
         form.add("size", "1024x1024");
@@ -175,17 +151,16 @@ public class AiService {
         log.info("Request succeeded!");
         String base64 = response.getData().get(0).getB64_json();
         byte[] imageBytes = Base64.getDecoder().decode(base64);
-        String id = jwtService.getDataFromToken(token);
         MultipartFile generatedFile = new MockMultipartFile(
                 "image",
                 "result.png",
                 "image/png",
                 imageBytes
         );
-        String blob = null;
+        String blob;
         try {
             BattleDTO battleDTO = BattleDTO.builder()
-                    .userId(id)
+                    .userId(userId)
                     .build();
             blob = photoStorageService.uploadBattlePhoto(generatedFile, battleDTO);
         } catch (IOException e) {
@@ -272,6 +247,9 @@ reason: short explanation of why the image does or does not match the location
     }
 
     public ResponseEntity<?> generateChests(String city) {
+        if (city == null || city.isBlank()) {
+            return ResponseEntity.status(400).body("City is required");
+        }
         List<Enemy> list = enemyRepository.findAll().stream().limit(10).collect(Collectors.toList());
         List<Enemy> chests = list.stream().filter(c -> c.getChestType() != null).toList();
         Map<String, Object> body = Map.of(
@@ -316,11 +294,14 @@ reason: short explanation of why the image does or does not match the location
             double lng = Double.parseDouble(matcher.group(2));
             coordinates.add(new double[]{lat, lng});
         }
+        int count = Math.min(coordinates.size(), chests.size());
         List<Enemy> output = new ArrayList<>();
-        for (int i = 0; i < coordinates.size(); i++) {
-            chests.get(i).setLatitude(coordinates.get(i)[0]);
-            chests.get(i).setLongitude(coordinates.get(i)[1]);
-            output.add(list.get(i));
+        for (int i = 0; i < count; i++) {
+            Enemy chest = chests.get(i);
+            double[] coord = coordinates.get(i);
+            chest.setLatitude(coord[0]);
+            chest.setLongitude(coord[1]);
+            output.add(chest);
         }
         return ResponseEntity.ok().body(output);
     }
