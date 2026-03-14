@@ -1,5 +1,8 @@
 package org.example.shareserver.services;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.components.HashComponent;
 import org.example.shareserver.models.ApiResponse;
@@ -67,5 +70,41 @@ public class AuthService {
         String token = jwtService.generateToken(mongoUser.getId());
         mongoUser.setPassword(null);
         return ResponseEntity.status(200).body(new ApiResponse(token, "User logged in successfully", mongoUser));
+    }
+
+    public ResponseEntity<?> loginWithGoogle(String idToken) {
+        if (idToken == null || idToken.isBlank()) {
+            return ResponseEntity.badRequest().body("idToken is required");
+        }
+        FirebaseToken decoded;
+        try {
+            decoded = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        } catch (FirebaseAuthException e) {
+            log.warn("Invalid Firebase ID token: {}", e.getMessage());
+            return ResponseEntity.status(401).body("Invalid Google token");
+        }
+
+        String uid = decoded.getUid();
+        String email = decoded.getEmail();
+        String name = decoded.getName();
+        String picture = decoded.getPicture();
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            user = new User();
+            user.setId("google_" + uid);
+            user.setNickname(name != null ? name : email);
+            user.setEmail(email);
+            user.setPassword(null);
+            if (picture != null) {
+                user.setPathToPhoto(picture);
+            }
+            userRepository.save(user);
+            log.info("Auto-registered Google user: {}", email);
+        }
+
+        String token = jwtService.generateToken(user.getId());
+        user.setPassword(null);
+        return ResponseEntity.ok(new ApiResponse(token, "Google login successful", user));
     }
 }

@@ -19,7 +19,7 @@ public class JWTConfig {
         http.cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/health").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/google", "/api/health").permitAll()
                         .requestMatchers("/api/enemy/**", "/api/map/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
