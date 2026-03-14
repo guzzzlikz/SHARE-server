@@ -150,11 +150,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openpnp</groupId>
-            <artifactId>opencv</artifactId>
-            <version>4.5.1-2</version> <!-- Check Maven Central for the latest version -->
-        </dependency>
     </dependencies>
 
     <build>

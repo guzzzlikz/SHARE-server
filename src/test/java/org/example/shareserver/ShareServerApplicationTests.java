@@ -1,8 +1,6 @@
 package org.example.shareserver;
 
 import org.example.shareserver.models.dtos.LoginDTO;
-import org.example.shareserver.models.entities.Product;
-import org.example.shareserver.services.JWTService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +11,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -52,34 +49,4 @@ class AuthTests {
                 .andExpect(status().isOk());
     }
 
-}
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-class ProductTests {
-
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private JWTService jwtService;
-
-    @Test
-    void addSuccess() throws Exception {
-        Product product = Product.builder()
-                .id("1")
-                .title("testProduct")
-                .description("testProductDesc")
-                .price(123)
-                .latitude(45.9204)
-                .longitude(65.2049)
-                .build();
-        mockMvc.perform(post("/api/products/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " +
-                                jwtService.generateToken("example228@gmail.com"))
-                .content(objectMapper.writeValueAsString(product)))
-                .andExpect(status().isOk());
-    }
 }

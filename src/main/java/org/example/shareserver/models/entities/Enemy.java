@@ -19,7 +19,6 @@ public class Enemy {
     private String id;
     private String name;
     private String pathToPhoto;
-    private String pathToGmapsPhoto;
     private String city;
     private double longitude;
     private double latitude;
