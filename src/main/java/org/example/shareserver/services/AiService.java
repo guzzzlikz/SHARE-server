@@ -99,7 +99,13 @@ public class AiService {
                 .bodyToMono(OpenAIImageDTO.class)
                 .block();
         log.info("Request succeeded!");
+        if (response == null || response.getData() == null || response.getData().isEmpty()) {
+            return ResponseEntity.status(502).body("AI returned no image data");
+        }
         String base64 = response.getData().get(0).getB64_json();
+        if (base64 == null || base64.isBlank()) {
+            return ResponseEntity.status(502).body("AI returned empty image");
+        }
         byte[] imageBytes = Base64.getDecoder().decode(base64);
         MultipartFile generatedFile = new MockMultipartFile(
                 "image",
@@ -114,7 +120,7 @@ public class AiService {
             throw new RuntimeException(e);
         }
         if (blob == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(500).body("Failed to upload generated image");
         }
         log.info("Blob succeeded!");
         return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob, BucketType.USER));
@@ -148,7 +154,13 @@ public class AiService {
                 .bodyToMono(OpenAIImageDTO.class)
                 .block();
         log.info("Request succeeded!");
+        if (response == null || response.getData() == null || response.getData().isEmpty()) {
+            return ResponseEntity.status(502).body("AI returned no image data");
+        }
         String base64 = response.getData().get(0).getB64_json();
+        if (base64 == null || base64.isBlank()) {
+            return ResponseEntity.status(502).body("AI returned empty image");
+        }
         byte[] imageBytes = Base64.getDecoder().decode(base64);
         MultipartFile generatedFile = new MockMultipartFile(
                 "image",
@@ -166,7 +178,7 @@ public class AiService {
             throw new RuntimeException(e);
         }
         if (blob == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(500).body("Failed to upload generated image");
         }
         log.info("Blob succeeded!");
         return ResponseEntity.ok().body(photoStorageService.getSignedUrl(blob, BucketType.BATTLE));

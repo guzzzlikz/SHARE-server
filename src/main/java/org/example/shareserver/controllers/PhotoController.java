@@ -106,7 +106,11 @@ public class PhotoController {
         if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        String url = photoStorageService.getSignedUrl(user.get().getPathToPhoto(), BucketType.USER);
+        String pathToPhoto = user.get().getPathToPhoto();
+        if (pathToPhoto == null || pathToPhoto.isBlank()) {
+            return ResponseEntity.noContent().build();
+        }
+        String url = photoStorageService.getSignedUrl(pathToPhoto, BucketType.USER);
         return ResponseEntity.ok(url);
     }
 }
