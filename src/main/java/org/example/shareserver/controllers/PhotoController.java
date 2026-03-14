@@ -88,8 +88,13 @@ public class PhotoController {
         }
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserPhoto(@PathVariable String userId) {
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserPhoto(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || authHeader.isEmpty() || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(403).body("Token not found");
+        }
+        String token = authHeader.replace("Bearer ", "");
+        String userId = jwtService.getDataFromToken(token);
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

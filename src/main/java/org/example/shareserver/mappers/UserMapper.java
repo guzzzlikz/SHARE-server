@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 public interface UserMapper {
 
     User toUserFromLogin(LoginDTO loginDTO);
-    User toUser(LoginDTO loginDTO);
+    User toUser(UserDTO userDTO);
     LoginDTO toLoginDto(User user);
 
 }

@@ -18,12 +18,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/profile")
-    public ResponseEntity<?> changeProfileInfo(@RequestBody LoginDTO userDTO) {
+    public ResponseEntity<?> changeProfileInfo(@RequestBody UserDTO userDTO) {
         return userService.changeProfileInfo(userDTO);
     }
 
-    @PostMapping("/items/{userId}")
-    public ResponseEntity<?> changeProfileInfo(@PathVariable String userId, @RequestBody List<Item> items) {
-        return userService.changeItems(userId, items);
+    @PostMapping("/items")
+    public ResponseEntity<?> changeProfileInfo(@RequestBody List<Item> items,@RequestHeader("Authorization") String authHeader) {
+        return userService.changeItems(authHeader, items);
     }
 }

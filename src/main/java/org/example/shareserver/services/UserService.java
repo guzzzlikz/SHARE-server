@@ -1,5 +1,6 @@
 package org.example.shareserver.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.shareserver.mappers.UserMapper;
 import org.example.shareserver.models.dtos.LoginDTO;
 import org.example.shareserver.models.dtos.UserDTO;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -22,7 +24,10 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public ResponseEntity<?> changeProfileInfo(LoginDTO userDto) {
+    @Autowired
+    private JWTService jwtService;
+
+    public ResponseEntity<?> changeProfileInfo(UserDTO userDto) {
         User user = userMapper.toUser(userDto);
         if(userRepository.findById(user.getId()).isEmpty()) {
             return ResponseEntity.status(404).body("User not found");
@@ -32,7 +37,14 @@ public class UserService {
         return ResponseEntity.ok(user);
     }
 
-    public ResponseEntity<?> changeItems(String userId, List<Item> items) {
+    public ResponseEntity<?> changeItems(String authHeader, List<Item> items) {
+        if (authHeader == null || authHeader.isEmpty() || !authHeader.startsWith("Bearer ")) {
+            log.warn("Possible XSS attack!");
+            return ResponseEntity.status(403).body("Token not found");
+        }
+        String token = authHeader.replace("Bearer ", "");
+        String userId = jwtService.getDataFromToken(token);
+
         Optional<User> userOp = userRepository.findById(userId);
 
         if(userOp.isEmpty()) {
