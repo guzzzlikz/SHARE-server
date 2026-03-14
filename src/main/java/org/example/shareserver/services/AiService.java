@@ -340,6 +340,37 @@ reason: short explanation of why the image does or does not match the location
                 .asText();
         return ResponseEntity.status(200).body(content);
     }
+    public ResponseEntity<?> generateQuiz(String street) {
+        Map<String, Object> body = Map.of(
+                "model", "gpt-4o-mini",
+                "messages", List.of(
+                        Map.of("role", "system",
+                                "content", "You are an AI assistant that helps generate " +
+                                        "quiz based on the street story. " +
+                                        "Your goal is to generate one truthful story (it should start with truth:)" +
+                                        "and two fake stories (should start with lie:) (you can create them yourself)" +
+                                        "Your story should be not bigger than 3 sentences" +
+                                        street),
+                        Map.of("role", "user",
+                                "content", "")
+                )
+        );
+        String prompt = webClient.post()
+                .uri("/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        JsonNode root = objectMapper.readTree(prompt);
+        String content = root
+                .path("choices")
+                .get(0)
+                .path("message")
+                .path("content")
+                .asText();
+        return ResponseEntity.status(200).body(content);
+    }
 }
 class MultipartInputStreamFileResource extends InputStreamResource {
 

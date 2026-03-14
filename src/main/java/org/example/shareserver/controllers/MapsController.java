@@ -17,4 +17,8 @@ public class MapsController {
     public ResponseEntity<?> getStreetFromCoordinates(@RequestParam double latitude, @RequestParam double longitude) {
         return mapsService.getStreetFromCoordinates(latitude, longitude);
     }
+    @GetMapping("quiz")
+    public ResponseEntity<?> generateQuizOnStreetFromCoordinates(@RequestParam double latitude, @RequestParam double longitude) {
+        return mapsService.getQuizOnStreetFromCoordinates(latitude, longitude);
+    }
 }
