@@ -1,51 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enemy Deploy — Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+          --bg:      #0b0d11;
+          --surface: #13161d;
+          --border:  #222630;
+          --accent:  #c0392b;
+          --accent2: #e74c3c;
+          --text:    #d0d4dc;
+          --muted:   #555c6e;
+          --mono:    'Share Tech Mono', monospace;
+          --sans:    'Barlow', sans-serif;
+          --radius:  6px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          background: var(--bg);
+          color: var(--text);
+          font-family: var(--sans);
+          font-size: 14px;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 48px 16px 80px;
+        }
+
+        body::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          background: repeating-linear-gradient(
+            to bottom,
+            transparent 0px, transparent 3px,
+            rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+          );
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .wrap {
+          width: 100%;
+          max-width: 640px;
+          position: relative;
+          z-index: 1;
+          animation: fadeUp .4s ease both;
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+          display: flex;
+          align-items: flex-start;
+          gap: 18px;
+          margin-bottom: 32px;
+        }
+        .skull-icon {
+          width: 44px; height: 44px;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        .header-text h1 {
+          font-family: var(--mono);
+          font-size: 24px;
+          letter-spacing: .05em;
+          color: #fff;
+          line-height: 1;
+        }
+        .header-text h1 span { color: var(--accent2); }
+        .header-text p {
+          font-size: 11px;
+          color: var(--muted);
+          margin-top: 7px;
+          font-family: var(--mono);
+          letter-spacing: .08em;
+        }
+
+        /* Base URL bar */
+        .config-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 20px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 8px 14px;
+        }
+        .config-row label {
+          font-family: var(--mono);
+          font-size: 10px;
+          letter-spacing: .12em;
+          color: var(--muted);
+          text-transform: uppercase;
+          flex-shrink: 0;
+        }
+        .config-row input {
+          flex: 1;
+          background: transparent;
+          border: none;
+          color: #7faaee;
+          font-family: var(--mono);
+          font-size: 12px;
+          outline: none;
+          padding: 0;
+        }
+        .config-row input::placeholder { color: #2e3340; }
+
+        /* Card */
+        .card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 22px 24px;
+          margin-bottom: 12px;
+          position: relative;
+          animation: fadeUp .4s ease both;
+        }
+        .card:nth-child(3) { animation-delay: .06s; }
+        .card:nth-child(4) { animation-delay: .12s; }
+        .card:nth-child(5) { animation-delay: .18s; }
+        .card:nth-child(6) { animation-delay: .24s; }
+
+        .card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0;
+          width: 3px; height: 100%;
+          background: var(--accent);
+          border-radius: var(--radius) 0 0 var(--radius);
+          opacity: 0;
+          transition: opacity .2s;
+        }
+        .card:focus-within::before { opacity: 1; }
+
+        .section-label {
+          font-family: var(--mono);
+          font-size: 10px;
+          letter-spacing: .14em;
+          color: var(--accent2);
+          text-transform: uppercase;
+          margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .section-label::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: var(--border);
+        }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+        /* Field */
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label {
+          font-size: 11px;
+          font-family: var(--mono);
+          color: var(--muted);
+          letter-spacing: .08em;
+          text-transform: uppercase;
+        }
+        .field label .req { color: var(--accent2); margin-left: 2px; }
+        .field label .opt { color: #333b4d; font-size: 10px; margin-left: 4px; }
+
+        input[type=text],
+        input[type=number] {
+          background: #0d0f14;
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          color: var(--text);
+          font-family: var(--mono);
+          font-size: 13px;
+          padding: 9px 12px;
+          width: 100%;
+          outline: none;
+          transition: border-color .18s, box-shadow .18s;
+        }
+        input[type=text]::placeholder,
+        input[type=number]::placeholder { color: #1e2230; }
+        input[type=text]:focus,
+        input[type=number]:focus {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 2px rgba(192,57,43,.12);
+        }
+
+        /* ID field special style when filled */
+        #eId:not(:placeholder-shown) {
+          border-color: #1e3a6e;
+          color: #7faaee;
+        }
+
+        .id-hint {
+          font-family: var(--mono);
+          font-size: 10px;
+          color: #2a5298;
+          letter-spacing: .06em;
+          display: none;
+        }
+        #eId:not(:placeholder-shown) ~ .id-hint { display: block; }
+
+        /* Photo */
+        .photo-row { display: flex; align-items: center; gap: 16px; }
+        .photo-thumb {
+          width: 62px; height: 62px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          background: #0d0f14;
+          display: flex; align-items: center; justify-content: center;
+          overflow: hidden;
+          flex-shrink: 0;
+          font-size: 26px;
+        }
+        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-meta { flex: 1; }
+        .file-btn {
+          display: inline-block;
+          padding: 7px 14px;
+          font-family: var(--mono);
+          font-size: 11px;
+          letter-spacing: .08em;
+          color: var(--muted);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          cursor: pointer;
+          transition: border-color .18s, color .18s;
+        }
+        .file-btn:hover { border-color: var(--accent); color: var(--text); }
+        #photoFile { display: none; }
+        #fileName { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 6px; }
+
+        /* Stat pills */
+        .stat-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; min-height: 0; }
+        .pill { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 999px; border: 1px solid; }
+        .pill-hp   { color: #4caf8a; border-color: #1a3d2e; background: #0e2218; }
+        .pill-dmg  { color: #e07b3a; border-color: #3d2010; background: #201108; }
+        .pill-boss { color: #e0c040; border-color: #3d3010; background: #201a08; }
+
+        /* Boss toggle */
+        .boss-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: 14px;
+          padding: 10px 14px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          background: #0d0f14;
+          cursor: pointer;
+          user-select: none;
+          transition: border-color .18s;
+        }
+        .boss-row:hover { border-color: #e0c040; }
+        .boss-row.active { border-color: #e0c040; background: #13110a; }
+        .boss-label {
+          font-family: var(--mono);
+          font-size: 12px;
+          letter-spacing: .08em;
+          color: var(--muted);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .boss-row.active .boss-label { color: #e0c040; }
+        .boss-crown { font-size: 15px; }
+        .toggle-track {
+          width: 36px; height: 20px;
+          border-radius: 999px;
+          background: var(--border);
+          position: relative;
+          transition: background .18s;
+          flex-shrink: 0;
+        }
+        .boss-row.active .toggle-track { background: #e0c040; }
+        .toggle-thumb {
+          width: 14px; height: 14px;
+          border-radius: 50%;
+          background: var(--muted);
+          position: absolute;
+          top: 3px; left: 3px;
+          transition: transform .18s, background .18s;
+        }
+        .boss-row.active .toggle-thumb { transform: translateX(16px); background: #13110a; }
+
+        /* Actions */
+        .actions { display: flex; gap: 10px; margin-top: 6px; }
+
+        .btn-deploy {
+          flex: 1;
+          padding: 12px 20px;
+          background: var(--accent);
+          color: #fff;
+          border: none;
+          border-radius: var(--radius);
+          font-family: var(--mono);
+          font-size: 13px;
+          letter-spacing: .1em;
+          cursor: pointer;
+          text-transform: uppercase;
+          transition: background .18s, transform .1s;
+        }
+        .btn-deploy:hover { background: var(--accent2); }
+        .btn-deploy:active { transform: scale(.98); }
+        .btn-deploy:disabled { background: #2a1a18; color: #5a3a34; cursor: not-allowed; }
+
+        .btn-clear {
+          padding: 12px 18px;
+          background: transparent;
+          color: var(--muted);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          font-family: var(--mono);
+          font-size: 11px;
+          letter-spacing: .08em;
+          cursor: pointer;
+          text-transform: uppercase;
+          transition: border-color .18s, color .18s;
+        }
+        .btn-clear:hover { border-color: var(--muted); color: var(--text); }
+
+        /* Status */
+        .status {
+          display: none;
+          margin-top: 14px;
+          padding: 11px 16px;
+          border-radius: var(--radius);
+          font-family: var(--mono);
+          font-size: 12px;
+          letter-spacing: .04em;
+          border: 1px solid;
+          line-height: 1.5;
+          animation: fadeUp .2s ease both;
+        }
+        .status.success { display: block; background: #0c1f14; border-color: #1a4a2a; color: #4caf8a; }
+        .status.error   { display: block; background: #1c0d0d; border-color: #4a1a1a; color: #e05050; }
+        .status.loading { display: block; background: #0d1320; border-color: #1a2a4a; color: #5a90d0; }
+    </style>
 </head>
 <body>
-    <h1>
-        Skebob :)
-        <input type="file" id="videoFile">
-        <button id="submit">sub</button>
-        <script>
-            const fileInput = document.querySelector('#videoFile'); // <input type="file" id="fileInput" />
+<div class="wrap">
 
-            fileInput.addEventListener('change', async () => {
-                const file = fileInput.files[0]; // Get first selected file
-                const formData = new FormData();
-                formData.append('file', file);
-                const user = {
-                    email: "example228@gmail.com",
-                    password: "pososi"
-                };// Key must match @RequestPart("file")
-                const res = await fetch('http://localhost:8080/api/auth/login', {
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    method: 'POST',
-                    body: JSON.stringify(user)
-                })
-                const data = await res.json();
-                const token = data.token
-                console.log(token)
-<<<<<<< HEAD
-                const response = await fetch('http://localhost:8080/api/ai/generate-profile', {
-=======
-                const response = await fetch('http://localhost:8080/api/ai/generate-battle-photo?battleId=111&mobId=121', {
->>>>>>> 3865542bcbfea8bf16673d06512e932666c2f8be
-                    headers: {
-                        "Authorization": "Bearer " + token
-                    },
-                    method: 'POST',
-                    body: formData,
-                });
+    <!-- Header -->
+    <div class="header">
+        <svg class="skull-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="44" height="44" rx="7" fill="#1a0d0d"/>
+            <path d="M22 9C14.82 9 9 14.82 9 22c0 4.42 2.16 8.32 5.5 10.7V35a1 1 0 001 1H28.5a1 1 0 001-1v-2.3C32.84 30.32 35 26.42 35 22 35 14.82 29.18 9 22 9z" fill="#c0392b" opacity=".95"/>
+            <rect x="16" y="30" width="4.5" height="7" rx="1.5" fill="#0b0d11"/>
+            <rect x="23.5" y="30" width="4.5" height="7" rx="1.5" fill="#0b0d11"/>
+            <ellipse cx="17.5" cy="21" rx="3.2" ry="3.8" fill="#0b0d11"/>
+            <ellipse cx="26.5" cy="21" rx="3.2" ry="3.8" fill="#0b0d11"/>
+            <path d="M20 27h4" stroke="#0b0d11" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="header-text">
+            <h1>ENEMY <span>DEPLOY</span></h1>
+            <p>// ADMIN PANEL · ENTITY CREATION INTERFACE</p>
+        </div>
+    </div>
 
-                const result = await response.text();
-                console.log(result);
-            });
-        </script>
-    </h1>
+    <!-- Base URL -->
+    <div class="config-row">
+        <label>Base URL</label>
+        <input type="text" id="baseUrl" value="http://localhost:8080" placeholder="http://localhost:8080" />
+    </div>
+
+    <!-- 01 Identity -->
+    <div class="card">
+        <div class="section-label">01 · Identity</div>
+        <div class="grid-2" style="margin-bottom:14px;">
+            <div class="field">
+                <label>ID <span class="opt">(optional)</span></label>
+                <input type="text" id="eId" placeholder="auto-generated" />
+                <div class="id-hint">// custom id will be sent</div>
+            </div>
+            <div class="field">
+                <label>Name <span class="req">*</span></label>
+                <input type="text" id="eName" placeholder="e.g. Dark Crawler" />
+            </div>
+        </div>
+        <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" id="eCity" placeholder="e.g. Kyiv" />
+        </div>
+    </div>
+
+    <!-- 02 Photo -->
+    <div class="card">
+        <div class="section-label">02 · Photo</div>
+        <div class="photo-row">
+            <div class="photo-thumb" id="photoThumb">💀</div>
+            <div class="photo-meta">
+                <label class="file-btn" for="photoFile">Choose file</label>
+                <input type="file" id="photoFile" accept="image/*" />
+                <div id="fileName">no file selected</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 Location -->
+    <div class="card">
+        <div class="section-label">03 · Location</div>
+        <div class="grid-2">
+            <div class="field">
+                <label>Latitude <span class="req">*</span></label>
+                <input type="number" id="eLat" step="any" placeholder="50.4501" />
+            </div>
+            <div class="field">
+                <label>Longitude <span class="req">*</span></label>
+                <input type="number" id="eLng" step="any" placeholder="30.5234" />
+            </div>
+        </div>
+    </div>
+
+    <!-- 04 Combat -->
+    <div class="card">
+        <div class="section-label">04 · Combat Stats</div>
+        <div class="grid-2">
+            <div class="field">
+                <label>HP <span class="req">*</span></label>
+                <input type="number" id="eHp" min="1" placeholder="100" />
+            </div>
+            <div class="field">
+                <label>Damage <span class="req">*</span></label>
+                <input type="number" id="eDmg" min="0" placeholder="15" />
+            </div>
+        </div>
+        <div class="boss-row" id="bossToggle" onclick="toggleBoss()">
+      <span class="boss-label">
+        <span class="boss-crown">&#x1F451;</span>
+        IS BOSS
+      </span>
+            <div class="toggle-track">
+                <div class="toggle-thumb"></div>
+            </div>
+        </div>
+        <div class="stat-preview" id="statPreview"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+        <button class="btn-deploy" id="deployBtn" onclick="deploy()">⚡ Deploy Enemy</button>
+        <button class="btn-clear" onclick="resetForm()">Clear</button>
+    </div>
+
+    <div class="status" id="statusBar"></div>
+
+</div>
+<script>
+    document.getElementById('photoFile').addEventListener('change', function() {
+      const f = this.files[0];
+      if (!f) return;
+      document.getElementById('fileName').textContent = f.name;
+      const r = new FileReader();
+      r.onload = e => {
+        document.getElementById('photoThumb').innerHTML = '<img src="' + e.target.result + '" />';
+      };
+      r.readAsDataURL(f);
+    });
+
+    ['eHp','eDmg'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePills);
+    });
+
+    function updatePills() {
+      const hp   = document.getElementById('eHp').value;
+      const dmg  = document.getElementById('eDmg').value;
+      const boss = document.getElementById('bossToggle').classList.contains('active');
+      let html = '';
+      if (hp)   html += '<span class="pill pill-hp">HP ' + hp + '</span>';
+      if (dmg)  html += '<span class="pill pill-dmg">DMG ' + dmg + '</span>';
+      if (boss) html += '<span class="pill pill-boss">&#x1F451; BOSS</span>';
+      document.getElementById('statPreview').innerHTML = html;
+    }
+
+    function toggleBoss() {
+      document.getElementById('bossToggle').classList.toggle('active');
+      updatePills();
+    }
+
+    function showStatus(msg, type) {
+      const el = document.getElementById('statusBar');
+      el.textContent = msg;
+      el.className = 'status ' + type;
+    }
+
+    function resetForm() {
+      ['eId','eName','eCity','eLat','eLng','eHp','eDmg'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('photoThumb').innerHTML = '&#128122;';
+      document.getElementById('fileName').textContent = 'no file selected';
+      document.getElementById('photoFile').value = '';
+      document.getElementById('statPreview').innerHTML = '';
+      document.getElementById('statusBar').className = 'status';
+      document.getElementById('bossToggle').classList.remove('active');
+    }
+
+    async function deploy() {
+      const base = (document.getElementById('baseUrl').value || '').replace(/\/$/, '');
+      const id   = document.getElementById('eId').value.trim();
+      const name = document.getElementById('eName').value.trim();
+      const city = document.getElementById('eCity').value.trim();
+      const lat  = parseFloat(document.getElementById('eLat').value);
+      const lng  = parseFloat(document.getElementById('eLng').value);
+      const hp   = parseInt(document.getElementById('eHp').value);
+      const dmg  = parseInt(document.getElementById('eDmg').value);
+
+      if (!name || !city || isNaN(lat) || isNaN(lng) || isNaN(hp) || isNaN(dmg)) {
+        showStatus('// ERROR: fill all required fields before deploying.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('deployBtn');
+      btn.disabled = true;
+      showStatus('// DEPLOYING enemy entity...', 'loading');
+
+      const payload = { name, city, latitude: lat, longitude: lng, hp, damage: dmg,
+        isBoss: document.getElementById('bossToggle').classList.contains('active') };
+      if (id) payload.id = id;
+
+      try {
+        const res = await fetch(base + '/api/enemy/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          showStatus('// SERVER ERROR ' + res.status + ': ' + txt, 'error');
+          btn.disabled = false;
+          return;
+        }
+
+        const data = await res.json().catch(() => null);
+        const enemyId = data?.id || data?.enemyId || id || null;
+
+        const photoFile = document.getElementById('photoFile').files[0];
+        if (photoFile && enemyId) {
+          showStatus('// ENTITY CREATED · uploading photo...', 'loading');
+          const form = new FormData();
+          form.append('file', photoFile);
+          const photoRes = await fetch(base + '/api/photo/' + enemyId + '/uploadEnemy', {
+            method: 'POST',
+            body: form
+          });
+          if (!photoRes.ok) {
+            showStatus('// PARTIAL: entity id=' + enemyId + ' created — photo upload failed.', 'error');
+            btn.disabled = false;
+            return;
+          }
+          showStatus('// DEPLOYED · id: ' + enemyId + ' · photo uploaded.', 'success');
+        } else {
+          showStatus(
+            enemyId ? '// DEPLOYED · id: ' + enemyId : '// DEPLOYED successfully.',
+            'success'
+          );
+        }
+        resetForm();
+      } catch (err) {
+        showStatus('// NETWORK ERROR: ' + err.message, 'error');
+      }
+
+      btn.disabled = false;
+    }
+</script>
 </body>
 </html>
