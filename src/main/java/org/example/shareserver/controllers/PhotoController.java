@@ -113,7 +113,7 @@ public class PhotoController {
         String url = photoStorageService.getSignedUrl(pathToPhoto, BucketType.USER);
         return ResponseEntity.ok(url);
     }
-    @GetMapping("/enemy/${mobId}")
+    @GetMapping("/enemy/{mobId}")
     public ResponseEntity<?> getPhotoById(@PathVariable String mobId) {
         return ResponseEntity.status(200).body(enemyRepository.findById(mobId));
     }
