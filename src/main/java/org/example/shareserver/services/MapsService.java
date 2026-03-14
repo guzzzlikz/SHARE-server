@@ -1,6 +1,7 @@
 package org.example.shareserver.services;
 
 import org.example.shareserver.models.dtos.OpenAIImageDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import tools.jackson.databind.ObjectMapper;
 public class MapsService {
     @Value("${gmaps.key}")
     private String mapKey;
+    @Autowired
+    private AiService aiService;
     public ResponseEntity<?> getStreetFromCoordinates(double latitude, double longitude) {
         WebClient webClient = WebClient.create();
         String response = webClient
@@ -30,8 +33,6 @@ public class MapsService {
                 .get(0)
                 .path("formatted_address")
                 .asText();
-
-        System.out.println(address);
-        return ResponseEntity.ok().body(address);
+        return ResponseEntity.ok().body(aiService.generateStory(address));
     }
 }
