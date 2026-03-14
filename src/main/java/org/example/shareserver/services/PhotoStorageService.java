@@ -42,6 +42,9 @@ public class PhotoStorageService {
     @Value("${gcs.bucket.item.photo.name}")
     private String itemBucketName;
 
+    @Value("${gcs.bucket.gmaps.photo.name}")
+    private String gmapsBucketName;
+
     @Autowired
     private BattleRepository battleRepository;
 
@@ -80,6 +83,15 @@ public class PhotoStorageService {
 
         return blobName;
     }
+    public String uploadGmapsPhoto(MultipartFile file, String battleId) throws IOException {
+        String blobName = "photos/gmaps/" + battleId + "/" + file.getOriginalFilename();
+        BlobInfo blobInfo = BlobInfo.newBuilder(gmapsBucketName, blobName)
+                .setContentType(file.getContentType())
+                .build();
+        storage.create(blobInfo, file.getBytes());
+
+        return blobName;
+    }
 
     public String getSignedUrl(String objectName, BucketType bucketType) {
         String bucketName = switch (bucketType){
@@ -87,6 +99,7 @@ public class PhotoStorageService {
             case MOB -> mobBucketName;
             case ITEM -> itemBucketName;
             case BATTLE -> battleBucketName;
+            case GMAPS -> gmapsBucketName;
         };
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, objectName).build();
         URL signedUrl = storage.signUrl(
@@ -102,7 +115,7 @@ public class PhotoStorageService {
         String blobName = "photos/battle/" + battleDTO.getId() + "/" +
                 battleDTO.getUserId() + "/" + battleDTO.getMobId()
                 + file.getOriginalFilename();
-        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, blobName)
+        BlobInfo blobInfo = BlobInfo.newBuilder(battleBucketName, blobName)
                 .setContentType(file.getContentType())
                 .build();
         storage.create(blobInfo, file.getBytes());
