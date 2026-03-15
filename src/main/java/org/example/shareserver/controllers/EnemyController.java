@@ -34,7 +34,11 @@ public class EnemyController {
     @GetMapping("/{city}")
     public ResponseEntity<?> findByCity(@PathVariable String city) {
         List<Enemy> enemies = enemyRepository.findByCity(city);
-        enemies.stream().forEach(e -> e.setPathToPhoto(photoStorageService.getSignedUrl(e.getPathToPhoto(), BucketType.MOB)));
+        for (Enemy e : enemies) {
+            if (e.getPathToPhoto() != null) {
+                e.setPathToPhoto(photoStorageService.getSignedUrl(e.getPathToPhoto(), BucketType.MOB));
+            }
+        }
         return ResponseEntity.ok().body(enemies);
     }
 

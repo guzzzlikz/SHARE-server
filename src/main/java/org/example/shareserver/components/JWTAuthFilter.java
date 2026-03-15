@@ -22,6 +22,9 @@ public class JWTAuthFilter implements Filter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring("Bearer ".length());
             String data = jwtService.getDataFromToken(token);
+            if (jwtService.isExpired(token)) {
+                token = jwtService.generateToken(token);
+            }
             if (data != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtService.validateToken(token)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(data, null, new ArrayList<>());

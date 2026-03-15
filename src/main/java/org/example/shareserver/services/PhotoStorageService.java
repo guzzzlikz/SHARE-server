@@ -96,6 +96,9 @@ public class PhotoStorageService {
             case BATTLE -> battleBucketName;
             case GMAPS -> gmapsBucketName;
         };
+        if (bucketName == null) {
+            return "";
+        }
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, objectName).build();
         URL signedUrl = storage.signUrl(
                 blobInfo,

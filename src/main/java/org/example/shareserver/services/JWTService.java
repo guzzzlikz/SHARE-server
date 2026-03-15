@@ -45,7 +45,7 @@ public class JWTService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    private boolean isExpired(String token) {
+    public boolean isExpired(String token) {
         return Jwts.parser()
                 .setSigningKey(new SecretKeySpec(hashComponent.hashToByte(key), SignatureAlgorithm.HS256.getJcaName()))
                 .build()
