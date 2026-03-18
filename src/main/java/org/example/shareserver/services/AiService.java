@@ -333,6 +333,7 @@ reason: short explanation of why the image does or does not match the location
             return ResponseEntity.status(400).body("Place is required");
         }
         List<Enemy> list = enemyRepository.findAll().stream().limit(5).collect(Collectors.toList());
+        list.stream().forEach(e -> e.setCity(city));
         Map<String, Object> body = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(

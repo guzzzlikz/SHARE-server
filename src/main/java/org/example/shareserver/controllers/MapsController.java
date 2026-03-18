@@ -24,4 +24,8 @@ public class MapsController {
     public ResponseEntity<?> generateQuizOnStreetFromCoordinates(@RequestParam double latitude, @RequestParam double longitude) {
         return mapsService.getQuizOnStreetFromCoordinates(latitude, longitude);
     }
+    @GetMapping("city")
+    public ResponseEntity<?> getCityFromCoordinates(@RequestParam double latitude, @RequestParam double longitude) {
+        return mapsService.getCityFromCoordinates(latitude, longitude);
+    }
 }
