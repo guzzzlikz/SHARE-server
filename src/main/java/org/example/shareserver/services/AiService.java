@@ -332,14 +332,18 @@ reason: short explanation of why the image does or does not match the location
         if (place == null || place.isBlank()){
             return ResponseEntity.status(400).body("Place is required");
         }
-        List<Enemy> list = enemyRepository.findAll().stream().limit(5).collect(Collectors.toList());
-        list.stream().forEach(e -> e.setCity(city));
+        List<Enemy> cityList = enemyRepository.findByCity(city);
+        if (cityList.isEmpty()){
+            List<Enemy> list = enemyRepository.findAll().stream().limit(5).collect(Collectors.toList());
+            list.forEach(e -> e.setCity(city));
+            enemyRepository.saveAll(list);
+        }
         Map<String, Object> body = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(
                         Map.of("role", "system",
                                 "content", "You are an AI assistant that helps generate positions of enemies. " +
-                                        "Your goal is to generate latitude and longtitude" + list.size() + "times" +
+                                        "Your goal is to generate latitude and longtitude" + cityList.size() + "times" +
                                         "based on the city that I provide {" + city + "} " +
                                         "and place in this city I also provide {" + place + "} " +
                                         "You should give only " +
@@ -382,10 +386,10 @@ reason: short explanation of why the image does or does not match the location
             double lng = Double.parseDouble(matcher.group(2));
             coordinates.add(new double[]{lat, lng});
         }
-        int count = Math.min(coordinates.size(), list.size());
+        int count = Math.min(coordinates.size(), cityList.size());
         List<Enemy> output = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Enemy enemy = list.get(i);
+            Enemy enemy = cityList.get(i);
             double[] coord = coordinates.get(i);
             enemy.setLatitude(coord[0]);
             enemy.setLongitude(coord[1]);
